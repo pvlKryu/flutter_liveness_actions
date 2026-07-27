@@ -18,6 +18,11 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: ${{ matrix.flutter-channel }}
+          cache: true
+      - name: Show toolchain
+        run: |
+          flutter --version
+          dart --version
       - name: Install package dependencies
         run: flutter pub get
       - name: Verify formatting
@@ -32,3 +37,5 @@ jobs:
       - name: Analyze example
         run: flutter analyze
         working-directory: example
+      - name: Publish dry-run
+        run: flutter pub publish --dry-run

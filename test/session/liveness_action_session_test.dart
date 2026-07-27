@@ -84,6 +84,55 @@ void main() {
       expect(audit.packageVersion, packageVersion);
       expect(audit.events, isNotEmpty);
       expect(audit.demoOnly, isTrue);
+      expect(audit.identityDecision, 'not_performed');
+      expect(audit.rawImagesStored, isFalse);
+    });
+
+    test('reset rebuilds challenge and clears latest result', () {
+      final session = LivenessActionSession(
+        enableChallenge: true,
+        performanceConfig: PerformanceConfig.highPerformance(),
+      );
+      addTearDown(session.dispose);
+
+      session.processFrame(
+        TestFrames.centeredFace(
+          timestamp: DateTime.fromMillisecondsSinceEpoch(0),
+        ),
+      );
+      expect(session.latestResult, isNotNull);
+      final firstId = session.challenge!.sequence.sequenceId;
+      session.reset();
+      expect(session.latestResult, isNull);
+      expect(session.challenge!.sequence.sequenceId, firstId);
+      expect(session.challenge!.state.completed, isFalse);
+    });
+
+    test('resume after pause accepts frames again', () {
+      final session = LivenessActionSession(
+        performanceConfig: PerformanceConfig.highPerformance(),
+      );
+      addTearDown(session.dispose);
+
+      session.pause();
+      expect(
+        session.processFrame(
+          TestFrames.centeredFace(
+            timestamp: DateTime.fromMillisecondsSinceEpoch(0),
+          ),
+        ),
+        isNull,
+      );
+      session.resume();
+      expect(
+        session.processFrame(
+          TestFrames.centeredFace(
+            timestamp: DateTime.fromMillisecondsSinceEpoch(200),
+          ),
+          processingDuration: const Duration(milliseconds: 10),
+        ),
+        isNotNull,
+      );
     });
 
     test('throws after dispose', () {

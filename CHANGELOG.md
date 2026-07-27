@@ -1,3 +1,14 @@
+## 0.9.0
+
+- Release candidate: public API freeze candidate (see `doc/STABILITY.md`, `doc/API.md`).
+- Exported `ChallengeStepEvaluator` as an advanced API.
+- Platform integration notes for Android/iOS camera + ML Kit (`doc/PLATFORM.md`).
+- Publishing checklist (`doc/PUBLISHING.md`) and richer example README.
+- Expanded challenge / session edge-case tests and adapter empty-face coverage.
+- Challenge retries honor synthetic timestamps (`retryCurrentStep(now:)`).
+- Renamed documentation directory to `doc/` for pub.dev layout.
+- CI: toolchain logging, publish dry-run, Flutter action cache.
+
 ## 0.5.0
 
 - Added `LivenessActionSession` facade for camera-agnostic pipeline orchestration.

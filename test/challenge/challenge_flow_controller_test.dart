@@ -78,5 +78,51 @@ void main() {
       controller.processSignal(signalForStep(FaceActionType.centerFace));
       expect(controller.state.progress, closeTo(0.2, 0.01));
     });
+
+    test('ignores wrong signal for current step', () {
+      controller.processSignal(signalForStep(FaceActionType.blinkOnce));
+      expect(
+          controller.state.steps.first.status, ChallengeStepStatus.inProgress);
+      expect(controller.state.progress, 0);
+    });
+
+    test('fails after exhausting retries on timeout', () {
+      controller.dispose();
+      controller = ChallengeFlowController(
+        config: const FaceChallengeConfig(maxRetriesPerStep: 1),
+      );
+      var t = DateTime(2026, 1, 1, 12);
+      controller.processSignal(FaceActionSignal.empty(), now: t);
+      // First timeout → retry
+      t = t.add(const Duration(seconds: 20));
+      controller.processSignal(FaceActionSignal.empty(), now: t);
+      expect(controller.state.failed, isFalse);
+      // Second timeout → fail challenge
+      t = t.add(const Duration(seconds: 20));
+      controller.processSignal(FaceActionSignal.empty(), now: t);
+      expect(controller.state.failed, isTrue);
+      expect(
+        controller.state.failureReason,
+        ChallengeFailureReason.timeout,
+      );
+    });
+
+    test('completes randomized seeded sequence deterministically', () {
+      controller.dispose();
+      controller = ChallengeFlowController(
+        config: const FaceChallengeConfig(
+          randomize: true,
+          seed: 99,
+          maxSteps: 3,
+          requireCenterFaceFirst: true,
+        ),
+      );
+      final types = controller.state.steps.map((s) => s.type).toList();
+      expect(types.first, FaceActionType.centerFace);
+      for (final type in types) {
+        controller.processSignal(signalForStep(type));
+      }
+      expect(controller.state.completed, isTrue);
+    });
   });
 }

@@ -13,6 +13,7 @@ export 'src/audit/audit_event_exporter.dart';
 export 'src/audit/audit_trail_recorder.dart';
 export 'src/challenge/challenge_flow_controller.dart';
 export 'src/challenge/challenge_sequence_factory.dart';
+export 'src/challenge/challenge_step_evaluator.dart';
 export 'src/challenge/default_challenges.dart';
 export 'src/config/challenge_config.dart';
 export 'src/config/face_action_config.dart';

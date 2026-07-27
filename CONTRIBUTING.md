@@ -4,7 +4,7 @@ Thanks for your interest in contributing to `flutter_liveness_actions`.
 
 ## Scope
 
-This package targets **Android and iOS** mobile Flutter apps. Please avoid adding web/desktop support in v0.1.x unless discussed in an issue first.
+This package targets **Android and iOS** mobile Flutter apps. Please avoid adding web/desktop support unless discussed in an issue first.
 
 ## Guidelines
 
@@ -12,7 +12,8 @@ This package targets **Android and iOS** mobile Flutter apps. Please avoid addin
 - Do not add raw image storage or upload to core APIs.
 - Avoid identity verification, KYC, AML, or fraud-prevention claims in code and docs.
 - Add unit tests for behavioral changes.
-- Run `dart format .`, `flutter analyze`, and `flutter test` before opening a PR.
+- Format with the **Flutter SDK** Dart (`dart format .` after `flutter` is on PATH), then run `flutter analyze` and `flutter test` before opening a PR.
+- Prefer additive changes; see [doc/STABILITY.md](doc/STABILITY.md) for the 0.9.0 RC freeze policy.
 
 ## Pull requests
 

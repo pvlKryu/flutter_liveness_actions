@@ -47,13 +47,13 @@ LivenessActionSession
 LivenessActionSnapshot / OnboardingAuditEvent
 ```
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/API.md](docs/API.md).
+See [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md), [doc/API.md](doc/API.md), and [doc/STABILITY.md](doc/STABILITY.md).
 
 ## Installation
 
 ```yaml
 dependencies:
-  flutter_liveness_actions: ^0.5.0
+  flutter_liveness_actions: ^0.9.0
   google_mlkit_face_detection: ^0.14.0
 ```
 
@@ -225,18 +225,18 @@ final auditBuilder = AuditEventBuilder(
 
 ## Limitations
 
-- Android and iOS only in v0.5.0
+- Android and iOS only in v0.9.0
 - Heuristic quality checks (brightness/blur) are limited where noted
 - Not validated for regulated identity use cases
-- Device and camera compatibility varies — see [docs/DEVICE_TESTING.md](docs/DEVICE_TESTING.md)
+- Device and camera compatibility varies — see [doc/DEVICE_TESTING.md](doc/DEVICE_TESTING.md) and [doc/PLATFORM.md](doc/PLATFORM.md)
 
 ## Roadmap
 
 - **0.1.0** — Core pipeline, example app, initial tests
 - **0.2.0** — Adaptive profiles, improved quality gate, lifecycle handling, live camera example
 - **0.3.0** — Randomized challenges, accessibility hooks, localization-ready guidance, audit trail
-- **0.5.0** — Session facade, API review docs, device testing checklist, live challenge example (current)
-- **0.9.0** — Release candidate, stable public API
+- **0.5.0** — Session facade, API review docs, device testing checklist, live challenge example
+- **0.9.0** — Release candidate, stable public API freeze candidate (current)
 - **1.0.0** — Stable API after external review and device testing
 
 ## Contributing

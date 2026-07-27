@@ -80,21 +80,22 @@ class ChallengeFlowController {
   }
 
   /// Retries the current step and increments its retry counter.
-  void retryCurrentStep() {
+  void retryCurrentStep({DateTime? now}) {
     final current = _state.currentStep;
     if (current == null) {
       return;
     }
+    final timestamp = now ?? DateTime.now();
     final updated = current.copyWith(
       status: ChallengeStepStatus.inProgress,
       retryCount: current.retryCount + 1,
-      startedAt: DateTime.now(),
+      startedAt: timestamp,
       failureReason: ChallengeFailureReason.none,
     );
     _replaceCurrent(updated);
     _events.add(FaceChallengeEvent(
       type: FaceChallengeEventType.retryRequested,
-      timestamp: DateTime.now(),
+      timestamp: timestamp,
       stepId: updated.id,
     ));
   }
@@ -135,7 +136,7 @@ class ChallengeFlowController {
   void _failCurrent(ChallengeFailureReason reason, DateTime timestamp) {
     final current = _state.currentStep!;
     if (current.retryCount < _config.maxRetriesPerStep) {
-      retryCurrentStep();
+      retryCurrentStep(now: timestamp);
       return;
     }
     _replaceCurrent(current.copyWith(

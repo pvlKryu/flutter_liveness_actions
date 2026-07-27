@@ -1,16 +1,31 @@
-# example
+# Example app
 
-A new Flutter project.
+Demo host for `flutter_liveness_actions` on **Android and iOS**.
 
-## Getting Started
+This app is for prototypes and UX exploration. It is **not** an identity verification, KYC, or fraud-prevention product.
 
-This project is a starting point for a Flutter application.
+## Flows
 
-A few resources to get you started if this is your first Flutter project:
+| Route | Purpose |
+| --- | --- |
+| Live camera demo | Preview + derived guidance chips |
+| Live camera challenge | Real camera + `LivenessActionSession` challenge |
+| Live randomized challenge | Seeded randomized sequence |
+| Simulated challenge | Button-driven signals (no camera) |
+| Audit / diagnostics | Privacy-safe JSON + performance metrics |
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Run
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+cd example
+flutter pub get
+flutter run
+```
+
+Grant camera permission when prompted.
+
+## Notes
+
+- Camera + ML Kit conversion lives in `lib/services/camera_liveness_session.dart`
+- Package core stays camera-agnostic — see `../doc/PLATFORM.md`
+- Device validation checklist: `../doc/DEVICE_TESTING.md`

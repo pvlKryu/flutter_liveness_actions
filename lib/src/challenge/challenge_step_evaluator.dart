@@ -2,12 +2,15 @@ import '../models/challenge_step.dart';
 import '../models/face_action_signal.dart';
 import '../models/face_action_type.dart';
 
-/// challenge step evaluator.
+/// Evaluates whether a derived [FaceActionSignal] satisfies a challenge step.
+///
+/// Advanced API — most apps should use [ChallengeFlowController] or
+/// [LivenessActionSession] instead of calling this directly.
 class ChallengeStepEvaluator {
-  /// Creates an instance with optional overrides.
+  /// Creates a step evaluator.
   const ChallengeStepEvaluator();
 
-  /// evaluate.
+  /// Returns `true` when [signal] completes [step].
   bool evaluate(FaceChallengeStep step, FaceActionSignal signal) {
     switch (step.type) {
       case FaceActionType.centerFace:
