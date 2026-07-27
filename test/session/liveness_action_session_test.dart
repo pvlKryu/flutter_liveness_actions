@@ -143,5 +143,41 @@ void main() {
         throwsStateError,
       );
     });
+
+    test('markProcessingFailed releases busy state and allows next frame', () {
+      final session = LivenessActionSession(
+        performanceConfig: PerformanceConfig.highPerformance(),
+      );
+      addTearDown(session.dispose);
+
+      final t0 = DateTime.fromMillisecondsSinceEpoch(0);
+      expect(session.acceptFrame(t0), isTrue);
+      session.markProcessingStarted();
+      session.markProcessingFailed();
+
+      expect(session.diagnostics.droppedFrames, 1);
+      expect(session.diagnostics.processedFrames, 0);
+
+      final snap = session.processFrame(
+        TestFrames.centeredFace(
+          timestamp: DateTime.fromMillisecondsSinceEpoch(200),
+        ),
+        processingDuration: const Duration(milliseconds: 10),
+      );
+      expect(snap, isNotNull);
+    });
+
+    test('markProcessingFailed can skip dropped-frame increment', () {
+      final session = LivenessActionSession(
+        performanceConfig: PerformanceConfig.highPerformance(),
+      );
+      addTearDown(session.dispose);
+
+      expect(
+          session.acceptFrame(DateTime.fromMillisecondsSinceEpoch(0)), isTrue);
+      session.markProcessingStarted();
+      session.markProcessingFailed(countAsDropped: false);
+      expect(session.diagnostics.droppedFrames, 0);
+    });
   });
 }

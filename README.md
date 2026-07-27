@@ -8,7 +8,7 @@ Liveness-aware face action helpers for Flutter mobile apps using Google ML Kit F
 
 `flutter_liveness_actions` helps Flutter developers build liveness-aware face-action challenge flows using Google ML Kit Face Detection. It provides reusable helpers for blink detection, head movement detection, face positioning, quality gates, challenge-state management, performance throttling, guidance messages, diagnostics, and audit-friendly onboarding events.
 
-**Stable API:** `1.0.0` — see [doc/API.md](doc/API.md) and [doc/STABILITY.md](doc/STABILITY.md).
+**Stable API:** `1.0.x` — see [doc/API.md](doc/API.md) and [doc/STABILITY.md](doc/STABILITY.md).
 
 **This package is not an identity verification, biometric authentication, KYC, AML, fraud-prevention, or credit-decisioning SDK.** It only provides derived interaction signals and challenge-flow utilities.
 
@@ -55,7 +55,7 @@ See [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md), [doc/API.md](doc/API.md), and [d
 
 ```yaml
 dependencies:
-  flutter_liveness_actions: ^1.0.0
+  flutter_liveness_actions: ^1.0.1
   google_mlkit_face_detection: ^0.14.0
 ```
 
@@ -239,7 +239,8 @@ final auditBuilder = AuditEventBuilder(
 - **0.3.0** — Randomized challenges, accessibility hooks, localization-ready guidance, audit trail
 - **0.5.0** — Session facade, API review docs, device testing checklist, live challenge example
 - **0.9.0** — Release candidate, stable public API freeze candidate
-- **1.0.0** — Stable API (current)
+- **1.0.0** — Stable API
+- **1.0.1** — Release-readiness patch (LICENSE, stuck-frame fix, platform camera formats) (current)
 
 Post-1.0 work focuses on patch/minor improvements, device validation as dependencies evolve, and optional host-app demos — not breaking API churn.
 

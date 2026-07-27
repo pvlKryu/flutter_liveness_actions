@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_liveness_actions/flutter_liveness_actions.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -6,6 +7,9 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 /// Demo camera + ML Kit host that feeds frames into [LivenessActionSession].
 ///
 /// Processes derived face-action signals only. Does not store or upload images.
+///
+/// Camera stream formats and `InputImage` conversion are **host-app**
+/// responsibilities and may need app-specific handling across devices/plugins.
 class CameraLivenessSession extends ChangeNotifier {
   /// Creates a camera host with an optional package [actionSession].
   CameraLivenessSession({
@@ -91,7 +95,8 @@ class CameraLivenessSession extends ChangeNotifier {
         front.first,
         resolution,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.nv21,
+        // Android: NV21; iOS: BGRA8888 — see doc/PLATFORM.md.
+        imageFormatGroup: _imageFormatGroupForPlatform(),
       );
       await controller.initialize();
       if (_disposed) {
@@ -160,8 +165,13 @@ class CameraLivenessSession extends ChangeNotifier {
     final started = DateTime.now();
     try {
       final input = _toInputImage(image, _cameraController!.description);
-      if (input == null || _detector == null) {
-        _action.markFrameDropped();
+      if (input == null) {
+        // Unsupported format / conversion failure — release busy state.
+        _action.markProcessingFailed();
+        return;
+      }
+      if (_detector == null) {
+        _action.markProcessingFailed();
         return;
       }
       final faces = await _detector!.processImage(input);
@@ -175,10 +185,31 @@ class CameraLivenessSession extends ChangeNotifier {
         notifyListeners();
       }
     } catch (_) {
-      _action.markFrameDropped();
+      // ML Kit / conversion errors must not leave the session stuck busy.
+      _action.markProcessingFailed();
     }
   }
 
+  /// Preferred camera stream format for ML Kit on this platform.
+  ///
+  /// Android: NV21. iOS: BGRA8888. Package targets Android/iOS only.
+  ImageFormatGroup _imageFormatGroupForPlatform() {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.iOS:
+        return ImageFormatGroup.bgra8888;
+      case TargetPlatform.android:
+        return ImageFormatGroup.nv21;
+      default:
+        return ImageFormatGroup.nv21;
+    }
+  }
+
+  /// Builds an [InputImage] for ML Kit, or `null` when unsupported.
+  ///
+  /// Host apps own camera → `InputImage` conversion. Plane layouts vary by
+  /// platform and plugin version; this example keeps a simple single-plane
+  /// path and fails closed (returns null) instead of throwing. Image bytes are
+  /// never stored or uploaded.
   InputImage? _toInputImage(CameraImage image, CameraDescription camera) {
     final rotation = InputImageRotationValue.fromRawValue(
       camera.sensorOrientation,
@@ -192,7 +223,17 @@ class CameraLivenessSession extends ChangeNotifier {
       return null;
     }
 
+    if (image.planes.isEmpty) {
+      return null;
+    }
+
+    // Simple example path: use the first plane for NV21 / BGRA8888 streams.
+    // Multi-plane YUV layouts may need host-specific handling.
     final plane = image.planes.first;
+    if (plane.bytes.isEmpty) {
+      return null;
+    }
+
     return InputImage.fromBytes(
       bytes: plane.bytes,
       metadata: InputImageMetadata(

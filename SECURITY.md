@@ -10,7 +10,9 @@ Do not store raw biometric data without proper legal basis, user consent, and se
 
 ## Vulnerability reports
 
-Report vulnerabilities via [GitHub Issues](https://github.com/pvlKryu/flutter_liveness_actions/issues) or email the maintainer (placeholder).
+Report vulnerabilities via [GitHub Issues](https://github.com/pvlKryu/flutter_liveness_actions/issues) or by contacting the maintainer at pavkriuchkov@gmail.com.
+
+If the issue involves sensitive security details, prefer email first.
 
 ## Defaults
 

@@ -85,6 +85,22 @@ class FrameProcessingController {
     _inFlight += 1;
   }
 
+  /// Releases busy state after a failed analysis attempt.
+  ///
+  /// Call this when [markProcessingStarted] was already invoked but the frame
+  /// could not be completed (unsupported format, conversion failure, detector
+  /// error). Failed frames are counted as drops by default and are **not**
+  /// counted as successfully processed.
+  void markProcessingFailed({bool countAsDropped = true}) {
+    _isProcessing = false;
+    if (_inFlight > 0) {
+      _inFlight -= 1;
+    }
+    if (countAsDropped) {
+      _droppedFrames += 1;
+    }
+  }
+
   /// Marks that frame analysis completed in [duration].
   ///
   /// [processedAt] should match the accepted frame timestamp when available so
@@ -104,7 +120,10 @@ class FrameProcessingController {
         _processedFrames;
   }
 
-  /// Marks an explicit frame drop.
+  /// Marks an explicit frame drop without changing busy/in-flight state.
+  ///
+  /// Prefer [markProcessingFailed] when [markProcessingStarted] has already
+  /// been called for the current frame.
   void markFrameDropped() {
     _droppedFrames += 1;
   }

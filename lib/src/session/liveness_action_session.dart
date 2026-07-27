@@ -133,7 +133,19 @@ class LivenessActionSession {
     _frameController.markProcessingStarted();
   }
 
-  /// Records a dropped/failed frame after [acceptFrame] returned true.
+  /// Releases busy state after a failed analysis attempt.
+  ///
+  /// Call when [markProcessingStarted] already ran but the frame could not be
+  /// completed (unsupported format, conversion failure, detector error).
+  /// Failed frames are counted as drops by default and are not counted as
+  /// successfully processed.
+  void markProcessingFailed({bool countAsDropped = true}) {
+    _frameController.markProcessingFailed(countAsDropped: countAsDropped);
+  }
+
+  /// Records a dropped frame without releasing busy/in-flight state.
+  ///
+  /// Prefer [markProcessingFailed] after [markProcessingStarted].
   void markFrameDropped() {
     _frameController.markFrameDropped();
   }

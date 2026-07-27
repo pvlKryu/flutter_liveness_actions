@@ -1,3 +1,12 @@
+## 1.0.1
+
+- Replaced placeholder LICENSE with the full MIT License.
+- Added safe processing-failure handling to prevent stuck frame-processing state after InputImage conversion or ML Kit errors.
+- Updated the example app to select Android/iOS camera image formats more safely.
+- Improved example camera error handling for unsupported image formats.
+- Updated SECURITY.md with a real maintainer contact.
+- Documentation and release-readiness polish.
+
 ## 1.0.0
 
 - First stable release.

@@ -17,12 +17,13 @@ The package core is camera-agnostic. Host apps convert camera frames into ML Kit
 - Mismatched `bytesPerRow` / format → empty face lists
 - Processing every preview frame without throttle → thermal throttling (use `LivenessActionSession.acceptFrame`)
 - Re-creating `FaceDetector` every frame → latency spikes
+- Calling `markProcessingStarted` then failing conversion without `markProcessingFailed` → stuck busy state
 
 ## iOS
 
 | Topic | Recommendation |
 | --- | --- |
-| Stream format | Prefer `ImageFormatGroup.bgra8888` when NV21 is unavailable |
+| Stream format | Prefer `ImageFormatGroup.bgra8888` (do not force NV21 on iOS) |
 | Rotation | Use the active camera description orientation |
 | Info.plist | `NSCameraUsageDescription` required |
 | Backgrounding | Pause the session on `AppLifecycleState.paused` / `inactive` |
@@ -45,4 +46,6 @@ The package core is camera-agnostic. Host apps convert camera frames into ML Kit
 
 See `example/lib/services/camera_liveness_session.dart` for a reference loop:
 
-`acceptFrame` → ML Kit `processImage` → `fromFaces` → `completeFrame`.
+`acceptFrame` → `markProcessingStarted` → ML Kit `processImage` → `fromFaces` → `completeFrame`
+
+On conversion / detector failure after start, call `markProcessingFailed` so the session does not stay busy.
