@@ -49,6 +49,6 @@ class FacePositionAnalyzer {
         (cy - 0.5).abs() <= config.centerTolerance;
     return centered
         ? FacePositionStatus.centered
-        : FacePositionStatus.outOfFrame;
+        : FacePositionStatus.notCentered;
   }
 }

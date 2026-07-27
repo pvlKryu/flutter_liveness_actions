@@ -129,6 +129,14 @@ Default sequence: center face → blink once → turn left → turn right → ho
 final fps = FrameProcessingController(config: PerformanceConfig.lowEndDevice());
 ```
 
+In 0.2.0, use `AdaptivePerformanceController` to switch profiles from runtime latency/drop-rate with confirmation hysteresis:
+
+```dart
+final adaptive = AdaptivePerformanceController();
+adaptive.observe(frameController.diagnostics());
+frameController.updateConfig(adaptive.config);
+```
+
 ## Low-end Android recommendations
 
 Optimized for a wide range of Android devices, including lower-end phones, subject to platform and camera plugin limitations.
@@ -170,17 +178,17 @@ Optimized for a wide range of Android devices, including lower-end phones, subje
 
 ## Limitations
 
-- Android and iOS only in v0.1.0
+- Android and iOS only in v0.2.0
 - Heuristic quality checks (brightness/blur) are limited where noted
 - Not validated for regulated identity use cases
 - Device and camera compatibility varies
 
 ## Roadmap
 
-- **0.1.0** — Core pipeline, example app, initial tests (current)
-- **0.2.0** — Adaptive profiles, improved quality gate, lifecycle handling
+- **0.1.0** — Core pipeline, example app, initial tests
+- **0.2.0** — Adaptive profiles, improved quality gate, lifecycle handling, live camera example (current)
 - **0.3.0** — Randomized challenges, accessibility hooks, localization-ready guidance
-- **0.5.0** — API review, multi-device testing, expanded docs
+- **0.5.0** — Multi-device testing, API review, expanded docs
 - **0.9.0** — Release candidate, stable public API
 - **1.0.0** — Stable API after external review and device testing
 

@@ -1,23 +1,26 @@
-/// face position status.
+/// Derived face position classification for a single frame.
 enum FacePositionStatus {
-  /// unknown.
+  /// Position could not be determined.
   unknown,
 
-  /// no face.
+  /// No face detected.
   noFace,
 
-  /// multiple faces.
+  /// More than one face detected.
   multipleFaces,
 
-  /// centered.
+  /// Face is centered within tolerance.
   centered,
 
-  /// too close.
+  /// Face is in frame but not centered enough.
+  notCentered,
+
+  /// Face appears too close to the camera.
   tooClose,
 
-  /// too far.
+  /// Face appears too far from the camera.
   tooFar,
 
-  /// out of frame.
+  /// Face bounding box is outside the image frame.
   outOfFrame,
 }

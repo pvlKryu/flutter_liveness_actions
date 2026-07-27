@@ -1,34 +1,75 @@
 import '../config/performance_config.dart';
 import '../models/liveness_diagnostics.dart';
 
-/// frame processing controller.
+/// Throttles camera-frame analysis for mobile performance and diagnostics.
 class FrameProcessingController {
   /// Creates a controller with the given performance [config].
-  FrameProcessingController({required this.config});
+  FrameProcessingController({required PerformanceConfig config})
+      : _config = config;
 
-  /// config.
-  final PerformanceConfig config;
+  PerformanceConfig _config;
   bool _isProcessing = false;
+  bool _paused = false;
   int _processedFrames = 0;
   int _droppedFrames = 0;
   int _frameCounter = 0;
+  int _inFlight = 0;
   double _avgProcessingMs = 0;
   DateTime? _lastProcessedAt;
 
-  /// should process frame.
+  /// Active performance configuration.
+  PerformanceConfig get config => _config;
+
+  /// Whether processing is paused (for app lifecycle).
+  bool get isPaused => _paused;
+
+  /// Whether a frame is currently being processed.
+  bool get isProcessing => _isProcessing;
+
+  /// Replaces the active performance configuration.
+  void updateConfig(PerformanceConfig config) {
+    _config = config;
+  }
+
+  /// Pauses frame acceptance (e.g. app backgrounded).
+  void pause() {
+    _paused = true;
+  }
+
+  /// Resumes frame acceptance.
+  void resume() {
+    _paused = false;
+  }
+
+  /// Resets counters and busy state.
+  void reset() {
+    _isProcessing = false;
+    _inFlight = 0;
+    _processedFrames = 0;
+    _droppedFrames = 0;
+    _frameCounter = 0;
+    _avgProcessingMs = 0;
+    _lastProcessedAt = null;
+  }
+
+  /// Returns whether [timestamp] should be analyzed.
   bool shouldProcessFrame(DateTime timestamp) {
     _frameCounter += 1;
-    if (_isProcessing) {
+    if (_paused) {
       _droppedFrames += 1;
       return false;
     }
-    if (config.frameSkipRatio > 0 &&
-        _frameCounter % (config.frameSkipRatio + 1) != 1) {
+    if (_isProcessing || _inFlight >= _config.maxInFlightFrames) {
+      _droppedFrames += 1;
+      return false;
+    }
+    if (_config.frameSkipRatio > 0 &&
+        _frameCounter % (_config.frameSkipRatio + 1) != 1) {
       _droppedFrames += 1;
       return false;
     }
     if (_lastProcessedAt != null) {
-      final minIntervalMs = (1000 / config.targetProcessingFps).round();
+      final minIntervalMs = (1000 / _config.targetProcessingFps).round();
       if (timestamp.difference(_lastProcessedAt!).inMilliseconds <
           minIntervalMs) {
         _droppedFrames += 1;
@@ -38,14 +79,18 @@ class FrameProcessingController {
     return true;
   }
 
-  /// mark processing started.
+  /// Marks that frame analysis has started.
   void markProcessingStarted() {
     _isProcessing = true;
+    _inFlight += 1;
   }
 
-  /// mark processing completed.
+  /// Marks that frame analysis completed in [duration].
   void markProcessingCompleted(Duration duration) {
     _isProcessing = false;
+    if (_inFlight > 0) {
+      _inFlight -= 1;
+    }
     _lastProcessedAt = DateTime.now();
     _processedFrames += 1;
     _avgProcessingMs = ((_avgProcessingMs * (_processedFrames - 1)) +
@@ -53,7 +98,7 @@ class FrameProcessingController {
         _processedFrames;
   }
 
-  /// mark frame dropped.
+  /// Marks an explicit frame drop.
   void markFrameDropped() {
     _droppedFrames += 1;
   }
@@ -63,7 +108,7 @@ class FrameProcessingController {
         averageProcessingMs: _avgProcessingMs,
         processedFrames: _processedFrames,
         droppedFrames: _droppedFrames,
-        targetProcessingFps: config.targetProcessingFps,
-        recommendedPerformanceProfile: config.profile,
+        targetProcessingFps: _config.targetProcessingFps,
+        recommendedPerformanceProfile: _config.profile,
       );
 }

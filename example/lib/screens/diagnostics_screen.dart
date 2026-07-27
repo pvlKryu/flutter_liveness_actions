@@ -1,33 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_liveness_actions/flutter_liveness_actions.dart';
 
-class DiagnosticsScreen extends StatelessWidget {
+/// Live diagnostics for frame processing and adaptive performance.
+class DiagnosticsScreen extends StatefulWidget {
+  /// Creates the diagnostics screen.
   const DiagnosticsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = FrameProcessingController(
-      config: PerformanceConfig.balanced(),
-    );
-    controller.markProcessingStarted();
-    controller.markProcessingCompleted(const Duration(milliseconds: 38));
-    final diagnostics = controller.diagnostics();
-    final capability = DeviceCapabilityProfile.fromDiagnostics(diagnostics);
+  State<DiagnosticsScreen> createState() => _DiagnosticsScreenState();
+}
 
+class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
+  late final FrameProcessingController _controller;
+  late final AdaptivePerformanceController _adaptive;
+  late LivenessDiagnostics _diagnostics;
+  late DeviceCapabilityProfile _capability;
+
+  @override
+  void initState() {
+    super.initState();
+    _adaptive = AdaptivePerformanceController();
+    _controller = FrameProcessingController(config: _adaptive.config);
+    // Simulate a short processing sample for demo when opened without camera.
+    for (var i = 0; i < 24; i++) {
+      final ts = DateTime(2026, 1, 1).add(Duration(milliseconds: i * 80));
+      if (_controller.shouldProcessFrame(ts)) {
+        _controller.markProcessingStarted();
+        _controller.markProcessingCompleted(
+          Duration(milliseconds: 40 + (i % 5) * 15),
+        );
+      }
+    }
+    _adaptive.observe(_controller.diagnostics());
+    _controller.updateConfig(_adaptive.config);
+    _diagnostics = _controller.diagnostics();
+    _capability = DeviceCapabilityProfile.fromDiagnostics(_diagnostics);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Diagnostics')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[
-          _row('averageProcessingMs', diagnostics.averageProcessingMs),
-          _row('processedFrames', diagnostics.processedFrames),
-          _row('droppedFrames', diagnostics.droppedFrames),
-          _row('targetProcessingFps', diagnostics.targetProcessingFps),
+          _row('averageProcessingMs',
+              _diagnostics.averageProcessingMs.toStringAsFixed(1)),
+          _row('processedFrames', _diagnostics.processedFrames),
+          _row('droppedFrames', _diagnostics.droppedFrames),
+          _row('targetProcessingFps', _diagnostics.targetProcessingFps),
+          _row('activeProfile', _adaptive.profile.name),
           _row(
             'recommendedPerformanceProfile',
-            capability.recommendedProfile.name,
+            _capability.recommendedProfile.name,
           ),
-          _row('lowEndModeRecommended', capability.lowEndModeRecommended),
+          _row('lowEndModeRecommended', _capability.lowEndModeRecommended),
+          _row(
+            'dropRate',
+            '${(_capability.dropRate * 100).toStringAsFixed(1)}%',
+          ),
+          _row(
+            'recommendedAnalysisResolution',
+            _capability.recommendedAnalysisResolution == null
+                ? '-'
+                : '${_capability.recommendedAnalysisResolution!.width.toInt()}x'
+                    '${_capability.recommendedAnalysisResolution!.height.toInt()}',
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Optimized for a wide range of Android devices, including lower-end '
+            'phones, subject to platform and camera plugin limitations.',
+          ),
         ],
       ),
     );

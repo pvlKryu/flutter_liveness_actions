@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import '../performance/performance_profile.dart';
 
-/// performance config.
+/// Frame processing and analysis performance settings.
 class PerformanceConfig {
-  /// Creates an instance with optional overrides.
+  /// Creates a performance configuration.
   const PerformanceConfig({
     required this.profile,
     required this.targetProcessingFps,
@@ -16,28 +16,28 @@ class PerformanceConfig {
     this.recommendedCameraResolution,
   });
 
-  /// profile.
+  /// Selected named performance profile.
   final PerformanceProfile profile;
 
-  /// target processing fps.
+  /// Target analysis frames per second.
   final int targetProcessingFps;
 
-  /// max in flight frames.
+  /// Maximum concurrently processed frames (v0.2 keeps this at 1).
   final int maxInFlightFrames;
 
-  /// frame skip ratio.
+  /// Process 1 of every (ratio + 1) frames.
   final int frameSkipRatio;
 
-  /// max rolling buffer size.
+  /// Rolling signal buffer size recommendation.
   final int maxRollingBufferSize;
 
-  /// enable extended quality checks.
+  /// Whether heuristic extended quality checks may run.
   final bool enableExtendedQualityChecks;
 
-  /// enable diagnostics.
+  /// Whether diagnostics should be collected.
   final bool enableDiagnostics;
 
-  /// recommended camera resolution.
+  /// Suggested camera / analysis resolution.
   final Size? recommendedCameraResolution;
 
   /// Creates a high-throughput performance profile.
@@ -87,4 +87,43 @@ class PerformanceConfig {
         enableDiagnostics: true,
         recommendedCameraResolution: Size(640, 480),
       );
+
+  /// Resolves a preset [PerformanceConfig] for [profile].
+  factory PerformanceConfig.fromProfile(PerformanceProfile profile) {
+    switch (profile) {
+      case PerformanceProfile.highPerformance:
+        return PerformanceConfig.highPerformance();
+      case PerformanceProfile.balanced:
+        return PerformanceConfig.balanced();
+      case PerformanceProfile.lowEndDevice:
+        return PerformanceConfig.lowEndDevice();
+      case PerformanceProfile.batterySaver:
+        return PerformanceConfig.batterySaver();
+    }
+  }
+
+  /// Returns a copy with selectively overridden fields.
+  PerformanceConfig copyWith({
+    PerformanceProfile? profile,
+    int? targetProcessingFps,
+    int? maxInFlightFrames,
+    int? frameSkipRatio,
+    int? maxRollingBufferSize,
+    bool? enableExtendedQualityChecks,
+    bool? enableDiagnostics,
+    Size? recommendedCameraResolution,
+  }) {
+    return PerformanceConfig(
+      profile: profile ?? this.profile,
+      targetProcessingFps: targetProcessingFps ?? this.targetProcessingFps,
+      maxInFlightFrames: maxInFlightFrames ?? this.maxInFlightFrames,
+      frameSkipRatio: frameSkipRatio ?? this.frameSkipRatio,
+      maxRollingBufferSize: maxRollingBufferSize ?? this.maxRollingBufferSize,
+      enableExtendedQualityChecks:
+          enableExtendedQualityChecks ?? this.enableExtendedQualityChecks,
+      enableDiagnostics: enableDiagnostics ?? this.enableDiagnostics,
+      recommendedCameraResolution:
+          recommendedCameraResolution ?? this.recommendedCameraResolution,
+    );
+  }
 }

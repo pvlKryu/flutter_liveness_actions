@@ -11,7 +11,7 @@ import 'blink_detector.dart';
 import 'face_position_analyzer.dart';
 import 'head_movement_detector.dart';
 
-/// face action analyzer.
+/// Orchestrates detectors and quality checks into a [FaceActionResult].
 class FaceActionAnalyzer {
   /// Creates an analyzer with optional detector and gate dependencies.
   FaceActionAnalyzer({
@@ -30,27 +30,25 @@ class FaceActionAnalyzer {
         _qualityGate = qualityGate ?? FaceQualityGate(),
         _guidanceBuilder = guidanceBuilder ?? const GuidanceMessageBuilder();
 
-  ///  config.
   final FaceActionConfig _config;
-
-  ///  blink detector.
   final BlinkDetector _blinkDetector;
-
-  ///  head movement detector.
   final HeadMovementDetector _headMovementDetector;
-
-  ///  position analyzer.
   final FacePositionAnalyzer _positionAnalyzer;
-
-  ///  quality gate.
   final FaceQualityGate _qualityGate;
-
-  ///  guidance builder.
   final GuidanceMessageBuilder _guidanceBuilder;
 
   int _holdStillFrames = 0;
+  LivenessDiagnostics _diagnostics = const LivenessDiagnostics(
+    targetProcessingFps: 12,
+    recommendedPerformanceProfile: PerformanceProfile.balanced,
+  );
 
-  /// analyze.
+  /// Updates diagnostics attached to subsequent [analyze] results.
+  void updateDiagnostics(LivenessDiagnostics diagnostics) {
+    _diagnostics = diagnostics;
+  }
+
+  /// Analyzes a normalized [frame] into derived interaction signals.
   FaceActionResult analyze(FaceActionFrame frame) {
     final position = _positionAnalyzer.analyze(frame);
     final quality = _qualityGate.evaluate(frame);
@@ -87,8 +85,14 @@ class FaceActionAnalyzer {
       smileDetected: (frame.smilingProbability ?? 0) > 0.7,
       qualityStatus: quality.status,
       positionStatus: position,
+      warnings: quality.warnings.map((w) => w.name).toList(growable: false),
     );
-    final guidance = _guidanceBuilder.fromSignal(signal);
+
+    final guidance = _guidanceBuilder.compose(
+      signal: signal,
+      quality: quality,
+      diagnostics: _diagnostics,
+    );
     signal = FaceActionSignal(
       faceDetected: signal.faceDetected,
       multipleFacesDetected: signal.multipleFacesDetected,
@@ -107,17 +111,22 @@ class FaceActionAnalyzer {
       qualityStatus: signal.qualityStatus,
       positionStatus: signal.positionStatus,
       guidanceMessages: guidance,
+      warnings: signal.warnings,
     );
 
     return FaceActionResult(
       frame: frame,
       signal: signal,
       quality: quality,
-      diagnostics: const LivenessDiagnostics(
-        targetProcessingFps: 12,
-        recommendedPerformanceProfile: PerformanceProfile.balanced,
-      ),
+      diagnostics: _diagnostics,
       processedAt: DateTime.now(),
     );
+  }
+
+  /// Resets blink / hold-still / quality stability state.
+  void reset() {
+    _holdStillFrames = 0;
+    _blinkDetector.reset();
+    _qualityGate.reset();
   }
 }

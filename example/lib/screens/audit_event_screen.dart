@@ -9,7 +9,7 @@ class AuditEventScreen extends StatelessWidget {
     final builder = AuditEventBuilder(
       sessionId: 'demo-session-123',
       sequenceId: DefaultChallenges.defaultSequence().sequenceId,
-      packageVersion: '0.1.0',
+      packageVersion: '0.2.0',
       challengeNonce: 'optional-demo-nonce',
     );
     final event = builder.build(
