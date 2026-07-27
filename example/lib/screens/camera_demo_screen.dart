@@ -78,9 +78,7 @@ class _CameraDemoScreenState extends State<CameraDemoScreen>
                         ),
                       ),
                     IgnorePointer(
-                      child: CustomPaint(
-                        painter: _OvalGuidePainter(),
-                      ),
+                      child: CustomPaint(painter: _OvalGuidePainter()),
                     ),
                   ],
                 ),

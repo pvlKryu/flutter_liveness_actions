@@ -61,8 +61,10 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[
-          _row('averageProcessingMs',
-              _diagnostics.averageProcessingMs.toStringAsFixed(1)),
+          _row(
+            'averageProcessingMs',
+            _diagnostics.averageProcessingMs.toStringAsFixed(1),
+          ),
           _row('processedFrames', _diagnostics.processedFrames),
           _row('droppedFrames', _diagnostics.droppedFrames),
           _row('targetProcessingFps', _diagnostics.targetProcessingFps),
@@ -81,7 +83,7 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
             _capability.recommendedAnalysisResolution == null
                 ? '-'
                 : '${_capability.recommendedAnalysisResolution!.width.toInt()}x'
-                    '${_capability.recommendedAnalysisResolution!.height.toInt()}',
+                      '${_capability.recommendedAnalysisResolution!.height.toInt()}',
           ),
           const SizedBox(height: 16),
           const Text(

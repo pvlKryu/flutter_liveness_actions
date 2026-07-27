@@ -14,13 +14,14 @@ class CameraLivenessSession extends ChangeNotifier {
     bool enableChallenge = false,
     FaceChallengeConfig challengeConfig = const FaceChallengeConfig(),
     String sessionId = 'camera-demo',
-  }) : _action = actionSession ??
-            LivenessActionSession(
-              sessionId: sessionId,
-              enableChallenge: enableChallenge,
-              challengeConfig: challengeConfig,
-              performanceConfig: initialConfig ?? PerformanceConfig.balanced(),
-            );
+  }) : _action =
+           actionSession ??
+           LivenessActionSession(
+             sessionId: sessionId,
+             enableChallenge: enableChallenge,
+             challengeConfig: challengeConfig,
+             performanceConfig: initialConfig ?? PerformanceConfig.balanced(),
+           );
 
   final LivenessActionSession _action;
   final MlKitFaceAdapter _adapter = const MlKitFaceAdapter();
@@ -169,10 +170,7 @@ class CameraLivenessSession extends ChangeNotifier {
         imageSize: Size(image.width.toDouble(), image.height.toDouble()),
         timestamp: now,
       );
-      _action.completeFrame(
-        frame,
-        DateTime.now().difference(started),
-      );
+      _action.completeFrame(frame, DateTime.now().difference(started));
       if (!_disposed) {
         notifyListeners();
       }
@@ -182,8 +180,9 @@ class CameraLivenessSession extends ChangeNotifier {
   }
 
   InputImage? _toInputImage(CameraImage image, CameraDescription camera) {
-    final rotation =
-        InputImageRotationValue.fromRawValue(camera.sensorOrientation);
+    final rotation = InputImageRotationValue.fromRawValue(
+      camera.sensorOrientation,
+    );
     if (rotation == null) {
       return null;
     }

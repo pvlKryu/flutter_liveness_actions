@@ -56,8 +56,9 @@ class _ChallengeDemoScreenState extends State<ChallengeDemoScreen> {
       _currentGuidance = null;
       return;
     }
-    _currentGuidance =
-        const GuidanceMessageBuilder().forChallengeStep(step).first;
+    _currentGuidance = const GuidanceMessageBuilder()
+        .forChallengeStep(step)
+        .first;
   }
 
   void _advance() {

@@ -28,14 +28,15 @@ class AuditEventScreen extends StatelessWidget {
         completedAt: DateTime.now(),
       );
     } else {
-      final builder = AuditEventBuilder(
-        sessionId: 'demo-session-123',
-        sequenceId: DefaultChallenges.defaultSequence().sequenceId,
-        packageVersion: packageVersion,
-        challengeNonce: 'optional-demo-nonce',
-      )
-        ..recordCameraReady()
-        ..recordQualityGatePassed();
+      final builder =
+          AuditEventBuilder(
+              sessionId: 'demo-session-123',
+              sequenceId: DefaultChallenges.defaultSequence().sequenceId,
+              packageVersion: packageVersion,
+              challengeNonce: 'optional-demo-nonce',
+            )
+            ..recordCameraReady()
+            ..recordQualityGatePassed();
       event = builder.build(
         challengeState: FaceChallengeState.initial(
           DefaultChallenges.defaultSequence().steps,

@@ -91,10 +91,7 @@ class _AccessibleGuidanceBannerState extends State<AccessibleGuidanceBanner> {
               ),
             if (chip != null) const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                text,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              child: Text(text, style: Theme.of(context).textTheme.titleMedium),
             ),
           ],
         ),

@@ -140,12 +140,12 @@ class _LiveChallengeScreenState extends State<LiveChallengeScreen>
             FilledButton(
               onPressed: completed
                   ? () => Navigator.pushNamed(
-                        context,
-                        '/audit',
-                        arguments: _session.actionSession.buildAuditEvent(
-                          completedAt: DateTime.now(),
-                        ),
-                      )
+                      context,
+                      '/audit',
+                      arguments: _session.actionSession.buildAuditEvent(
+                        completedAt: DateTime.now(),
+                      ),
+                    )
                   : null,
               child: const Text('View audit event'),
             ),
