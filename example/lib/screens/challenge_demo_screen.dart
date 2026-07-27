@@ -75,9 +75,8 @@ class _ChallengeDemoScreenState extends State<ChallengeDemoScreen> {
               spacing: 8,
               children: state.steps
                   .map(
-                    (s) => Chip(
-                      label: Text('${s.type.name}: ${s.status.name}'),
-                    ),
+                    (s) =>
+                        Chip(label: Text('${s.type.name}: ${s.status.name}')),
                   )
                   .toList(),
             ),

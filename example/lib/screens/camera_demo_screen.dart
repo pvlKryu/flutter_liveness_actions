@@ -18,13 +18,12 @@ class CameraDemoScreen extends StatelessWidget {
                 color: Colors.black12,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Center(
-                child: Text('Camera preview placeholder'),
-              ),
+              child: const Center(child: Text('Camera preview placeholder')),
             ),
             const SizedBox(height: 16),
             const Text(
-                'Use this screen to integrate camera and ML Kit adapter.'),
+              'Use this screen to integrate camera and ML Kit adapter.',
+            ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () => Navigator.pushNamed(context, '/challenge'),
