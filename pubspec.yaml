@@ -1,0 +1,31 @@
+name: flutter_liveness_actions
+description: Liveness-aware face action helpers for Flutter mobile apps using Google ML Kit Face Detection. Not an identity verification SDK.
+version: 0.1.0
+homepage: https://github.com/pvlKryu/flutter_liveness_actions
+repository: https://github.com/pvlKryu/flutter_liveness_actions
+issue_tracker: https://github.com/pvlKryu/flutter_liveness_actions/issues
+documentation: https://github.com/pvlKryu/flutter_liveness_actions#readme
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+topics:
+  - flutter
+  - face-detection
+  - google-ml-kit
+  - liveness
+  - onboarding
+
+dependencies:
+  flutter:
+    sdk: flutter
+  equatable: ^2.0.5
+  google_mlkit_face_detection: ^0.14.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:

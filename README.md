@@ -1,0 +1,197 @@
+# flutter_liveness_actions
+
+[![pub package](https://img.shields.io/pub/v/flutter_liveness_actions.svg)](https://pub.dev/packages/flutter_liveness_actions)
+[![CI](https://github.com/pvlKryu/flutter_liveness_actions/actions/workflows/ci.yml/badge.svg)](https://github.com/pvlKryu/flutter_liveness_actions/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+Liveness-aware face action helpers for Flutter mobile apps using Google ML Kit Face Detection.
+
+`flutter_liveness_actions` helps Flutter developers build liveness-aware face-action challenge flows using Google ML Kit Face Detection. It provides reusable helpers for blink detection, head movement detection, face positioning, quality gates, challenge-state management, performance throttling, guidance messages, diagnostics, and audit-friendly onboarding events.
+
+**This package is not an identity verification, biometric authentication, KYC, AML, fraud-prevention, or credit-decisioning SDK.** It only provides derived interaction signals and challenge-flow utilities.
+
+## What this package does
+
+- Converts ML Kit face output into normalized `FaceActionFrame` values
+- Derives onboarding interaction signals (blink, head turn, face position, hold still)
+- Smooths noisy detector output with temporal buffers and hysteresis
+- Evaluates face quality gates for challenge readiness
+- Runs configurable challenge sequences with progress and events
+- Throttles frame processing for lower-end Android devices
+- Builds privacy-safe, demo-oriented audit events (no raw images)
+- Exposes accessibility-friendly guidance metadata for your UI
+
+## What this package does not do
+
+- Identity verification or biometric authentication
+- Face comparison or person identification
+- KYC, AML, fraud prevention, or credit decisioning
+- Raw image storage or upload (by design)
+- Web, desktop, macOS, Windows, or Linux support (v0.1.0)
+
+## Why this package exists
+
+Camera-based onboarding prototypes often reimplement the same layers: adapter → smoothing → quality gate → challenge state machine → UX guidance. This package extracts that production-oriented pipeline into testable pure Dart logic for Android and iOS mobile apps.
+
+## Architecture overview
+
+```
+Camera / ML Kit Face
+        ↓
+MlKitFaceAdapter
+        ↓
+FaceActionFrame
+        ↓
+FaceActionAnalyzer
+        ↓
+SignalSmoother
+        ↓
+FaceQualityGate
+        ↓
+ChallengeFlowController
+        ↓
+GuidanceMessageBuilder
+        ↓
+OnboardingAuditEvent
+```
+
+## Installation
+
+```yaml
+dependencies:
+  flutter_liveness_actions: ^0.1.0
+  google_mlkit_face_detection: ^0.14.0
+```
+
+## Android setup
+
+Add camera permission to `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+Ensure `minSdkVersion` meets ML Kit and camera plugin requirements (typically 21+).
+
+## iOS setup
+
+Add to `ios/Runner/Info.plist`:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Camera is used for on-device face action signal processing during onboarding demos.</string>
+```
+
+## Quick start
+
+```dart
+import 'package:flutter_liveness_actions/flutter_liveness_actions.dart';
+
+final adapter = MlKitFaceAdapter();
+final analyzer = FaceActionAnalyzer();
+final challenge = ChallengeFlowController();
+
+// After ML Kit returns faces:
+final frame = adapter.fromFaces(faces, imageSize: imageSize);
+final result = analyzer.analyze(frame);
+challenge.processSignal(result.signal);
+```
+
+## ML Kit adapter example
+
+```dart
+final adapter = MlKitFaceAdapter();
+final frame = adapter.fromFace(face, imageSize: Size(width, height));
+```
+
+## Challenge flow example
+
+```dart
+final controller = ChallengeFlowController();
+controller.events.listen((event) {
+  // Handle stepPassed, challengeCompleted, etc.
+});
+controller.processSignal(result.signal);
+```
+
+Default sequence: center face → blink once → turn left → turn right → hold still.
+
+## Performance profiles
+
+| Profile | Target FPS | Notes |
+|---------|------------|-------|
+| `highPerformance` | 20 | More checks, larger buffers |
+| `balanced` | 12 | Default recommendation |
+| `lowEndDevice` | 8 | Smaller buffers, fewer checks |
+| `batterySaver` | 6 | Minimal processing |
+
+```dart
+final fps = FrameProcessingController(config: PerformanceConfig.lowEndDevice());
+```
+
+## Low-end Android recommendations
+
+Optimized for a wide range of Android devices, including lower-end phones, subject to platform and camera plugin limitations.
+
+- Use `PerformanceConfig.lowEndDevice()` or `batterySaver()`
+- Process one frame at a time (`maxInFlightFrames: 1`)
+- Prefer lower analysis resolution (640×480)
+- Disable extended quality checks when not needed
+- Monitor `LivenessDiagnostics` and adapt profiles
+
+## Guidance messages
+
+`GuidanceMessageBuilder` returns metadata (code, severity, default text, semantic labels, haptic hints) for your UI — no widgets are forced by the package.
+
+## Audit event example
+
+```json
+{
+  "sessionId": "demo-session-123",
+  "rawImagesStored": false,
+  "identityDecision": "not_performed",
+  "creditDecision": "not_performed",
+  "demoOnly": true,
+  "privacy": {
+    "rawImagesStored": false,
+    "rawImagesUploaded": false,
+    "derivedSignalsOnly": true
+  }
+}
+```
+
+## Privacy principles
+
+- Derived signals only by default
+- No raw image storage or upload from core APIs
+- No backend required
+- Audit events include explicit privacy flags
+- See [PRIVACY.md](PRIVACY.md)
+
+## Limitations
+
+- Android and iOS only in v0.1.0
+- Heuristic quality checks (brightness/blur) are limited where noted
+- Not validated for regulated identity use cases
+- Device and camera compatibility varies
+
+## Roadmap
+
+- **0.1.0** — Core pipeline, example app, initial tests (current)
+- **0.2.0** — Adaptive profiles, improved quality gate, lifecycle handling
+- **0.3.0** — Randomized challenges, accessibility hooks, localization-ready guidance
+- **0.5.0** — API review, multi-device testing, expanded docs
+- **0.9.0** — Release candidate, stable public API
+- **1.0.0** — Stable API after external review and device testing
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Disclaimer
+
+See [DISCLAIMER.md](DISCLAIMER.md). This package is intended for demos, prototypes, research, and mobile onboarding UX helpers unless properly reviewed by qualified teams.

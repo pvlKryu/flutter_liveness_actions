@@ -1,0 +1,43 @@
+/// Liveness-aware face action helpers for Flutter mobile (Android/iOS).
+///
+/// Provides derived onboarding interaction signals — not identity verification.
+library;
+
+export 'src/adapters/mlkit_face_adapter.dart';
+export 'src/analyzers/blink_detector.dart';
+export 'src/analyzers/face_action_analyzer.dart';
+export 'src/analyzers/face_position_analyzer.dart';
+export 'src/analyzers/head_movement_detector.dart';
+export 'src/audit/audit_event_builder.dart';
+export 'src/audit/audit_event_exporter.dart';
+export 'src/challenge/challenge_flow_controller.dart';
+export 'src/challenge/challenge_sequence_factory.dart';
+export 'src/challenge/default_challenges.dart';
+export 'src/config/challenge_config.dart';
+export 'src/config/face_action_config.dart';
+export 'src/config/performance_config.dart';
+export 'src/config/privacy_config.dart';
+export 'src/guidance/guidance_code.dart';
+export 'src/guidance/guidance_message_builder.dart';
+export 'src/guidance/guidance_severity.dart';
+export 'src/models/challenge_event.dart';
+export 'src/models/challenge_failure_reason.dart';
+export 'src/models/challenge_sequence.dart';
+export 'src/models/challenge_state.dart';
+export 'src/models/challenge_step.dart';
+export 'src/models/face_action_frame.dart';
+export 'src/models/face_action_result.dart';
+export 'src/models/face_action_signal.dart';
+export 'src/models/face_action_type.dart';
+export 'src/models/face_position_status.dart';
+export 'src/models/face_quality_result.dart';
+export 'src/models/face_quality_status.dart';
+export 'src/models/guidance_message.dart';
+export 'src/models/liveness_diagnostics.dart';
+export 'src/models/onboarding_audit_event.dart';
+export 'src/performance/device_capability_profile.dart';
+export 'src/performance/frame_processing_controller.dart';
+export 'src/performance/performance_profile.dart';
+export 'src/privacy/privacy_guard.dart';
+export 'src/quality/face_quality_gate.dart';
+export 'src/smoothing/signal_smoother.dart';
