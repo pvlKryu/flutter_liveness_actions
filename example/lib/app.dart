@@ -26,6 +26,7 @@ class ExampleApp extends StatelessWidget {
         '/permission': (_) => const CameraPermissionScreen(),
         '/camera': (_) => const CameraDemoScreen(),
         '/challenge': (_) => const ChallengeDemoScreen(),
+        '/challenge-random': (_) => const ChallengeDemoScreen(randomized: true),
         '/audit': (_) => const AuditEventScreen(),
         '/diagnostics': (_) => const DiagnosticsScreen(),
       },

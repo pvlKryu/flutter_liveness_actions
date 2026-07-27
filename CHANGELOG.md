@@ -1,3 +1,11 @@
+## 0.3.0
+
+- Randomized challenge sequences with seed, nonce, and center-face-first option.
+- Localization-ready guidance catalog with stable `messageKey` values.
+- Accessibility metadata: semantic labels, haptics hints, high-contrast labels, live announcements.
+- Advanced audit trail recorder and timeline events in audit JSON.
+- Example flows for default and randomized challenges with accessible guidance banner.
+
 ## 0.2.0
 
 - Adaptive performance controller with confirmation hysteresis.

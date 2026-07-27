@@ -5,100 +5,77 @@ import '../models/face_quality_result.dart';
 import '../models/guidance_message.dart';
 import '../models/liveness_diagnostics.dart';
 import '../quality/face_quality_warning.dart';
+import 'guidance_catalog.dart';
 import 'guidance_code.dart';
-import 'guidance_severity.dart';
 
 /// Builds accessibility-friendly UX guidance from derived signals.
 class GuidanceMessageBuilder {
   /// Creates a guidance message builder.
   const GuidanceMessageBuilder();
 
+  /// Returns default English instruction text for a challenge [type].
+  String instructionTextFor(FaceActionType type) {
+    switch (type) {
+      case FaceActionType.centerFace:
+        return GuidanceCatalog.messageFor(GuidanceCode.centerFace)
+            .defaultEnglishText;
+      case FaceActionType.blinkOnce:
+        return GuidanceCatalog.messageFor(GuidanceCode.blinkOnce)
+            .defaultEnglishText;
+      case FaceActionType.turnHeadLeft:
+        return GuidanceCatalog.messageFor(GuidanceCode.turnHeadLeft)
+            .defaultEnglishText;
+      case FaceActionType.turnHeadRight:
+        return GuidanceCatalog.messageFor(GuidanceCode.turnHeadRight)
+            .defaultEnglishText;
+      case FaceActionType.holdStill:
+        return GuidanceCatalog.messageFor(GuidanceCode.holdStill)
+            .defaultEnglishText;
+    }
+  }
+
   /// Builds guidance from a derived [signal].
   List<GuidanceMessage> fromSignal(FaceActionSignal signal) {
     if (!signal.faceDetected) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.noFaceDetected,
-          severity: GuidanceSeverity.warning,
-          defaultEnglishText:
-              'No face detected. Align your face with the guide.',
-          semanticLabel: 'No face detected',
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.noFaceDetected),
       ];
     }
     if (signal.multipleFacesDetected) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.onlyOnePerson,
-          severity: GuidanceSeverity.error,
-          defaultEnglishText: 'Only one person should be visible.',
-          semanticLabel: 'Multiple faces detected',
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.onlyOnePerson),
       ];
     }
     if (signal.warnings.contains(FaceQualityWarning.lowLightHeuristic.name) ||
         signal.warnings
             .contains(FaceQualityWarning.overExposedHeuristic.name)) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.improveLighting,
-          severity: GuidanceSeverity.warning,
-          defaultEnglishText:
-              'Improve lighting. Avoid strong backlight and darkness.',
-          semanticLabel: 'Improve lighting',
-          canUseHapticFeedback: true,
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.improveLighting),
       ];
     }
     if (signal.faceTooFar) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.moveCloser,
-          severity: GuidanceSeverity.warning,
-          defaultEnglishText: 'Move closer to the camera.',
-          canUseHapticFeedback: true,
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.moveCloser),
       ];
     }
     if (signal.faceTooClose) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.moveFarther,
-          severity: GuidanceSeverity.warning,
-          defaultEnglishText: 'Move slightly farther from the camera.',
-          canUseHapticFeedback: true,
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.moveFarther),
       ];
     }
     if (signal.faceOutOfFrame) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.faceOutOfFrame,
-          severity: GuidanceSeverity.warning,
-          defaultEnglishText: 'Keep your face fully inside the frame.',
-          canUseHapticFeedback: true,
-          semanticLabel: 'Face out of frame',
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.faceOutOfFrame),
       ];
     }
     if (!signal.faceCentered) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.centerFace,
-          severity: GuidanceSeverity.info,
-          defaultEnglishText: 'Center your face in the frame.',
-          canUseHapticFeedback: true,
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.centerFace),
       ];
     }
     if (!signal.holdStill) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.holdStill,
-          severity: GuidanceSeverity.info,
-          defaultEnglishText: 'Hold still for a moment.',
-          semanticLabel: 'Hold still',
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.holdStill),
       ];
     }
     return const <GuidanceMessage>[];
@@ -108,100 +85,47 @@ class GuidanceMessageBuilder {
   List<GuidanceMessage> forChallengeStep(FaceChallengeStep step) {
     switch (step.type) {
       case FaceActionType.centerFace:
-        return const <GuidanceMessage>[
-          GuidanceMessage(
-            code: GuidanceCode.centerFace,
-            severity: GuidanceSeverity.info,
+        return <GuidanceMessage>[
+          GuidanceCatalog.messageFor(GuidanceCode.centerFace).copyWith(
             defaultEnglishText: 'Center your face in the oval.',
-            canUseHapticFeedback: true,
-            semanticLabel: 'Center face',
           ),
         ];
       case FaceActionType.blinkOnce:
-        return const <GuidanceMessage>[
-          GuidanceMessage(
-            code: GuidanceCode.blinkOnce,
-            severity: GuidanceSeverity.info,
-            defaultEnglishText: 'Blink once.',
-            canUseHapticFeedback: true,
-            semanticLabel: 'Blink once',
-          ),
+        return <GuidanceMessage>[
+          GuidanceCatalog.messageFor(GuidanceCode.blinkOnce),
         ];
       case FaceActionType.turnHeadLeft:
-        return const <GuidanceMessage>[
-          GuidanceMessage(
-            code: GuidanceCode.turnHeadLeft,
-            severity: GuidanceSeverity.info,
-            defaultEnglishText: 'Turn your head left.',
-            canUseHapticFeedback: true,
-            semanticLabel: 'Turn head left',
-          ),
+        return <GuidanceMessage>[
+          GuidanceCatalog.messageFor(GuidanceCode.turnHeadLeft),
         ];
       case FaceActionType.turnHeadRight:
-        return const <GuidanceMessage>[
-          GuidanceMessage(
-            code: GuidanceCode.turnHeadRight,
-            severity: GuidanceSeverity.info,
-            defaultEnglishText: 'Turn your head right.',
-            canUseHapticFeedback: true,
-            semanticLabel: 'Turn head right',
-          ),
+        return <GuidanceMessage>[
+          GuidanceCatalog.messageFor(GuidanceCode.turnHeadRight),
         ];
       case FaceActionType.holdStill:
-        return const <GuidanceMessage>[
-          GuidanceMessage(
-            code: GuidanceCode.holdStill,
-            severity: GuidanceSeverity.info,
-            defaultEnglishText: 'Hold still.',
-            semanticLabel: 'Hold still',
-          ),
+        return <GuidanceMessage>[
+          GuidanceCatalog.messageFor(GuidanceCode.holdStill),
         ];
     }
   }
 
   /// Camera permission required message.
-  GuidanceMessage cameraPermissionRequired() {
-    return const GuidanceMessage(
-      code: GuidanceCode.cameraPermissionRequired,
-      severity: GuidanceSeverity.error,
-      defaultEnglishText: 'Camera permission is required to continue.',
-      semanticLabel: 'Camera permission required',
-    );
-  }
+  GuidanceMessage cameraPermissionRequired() =>
+      GuidanceCatalog.messageFor(GuidanceCode.cameraPermissionRequired);
 
   /// Challenge completed message.
-  GuidanceMessage challengeCompleted() {
-    return const GuidanceMessage(
-      code: GuidanceCode.challengeCompleted,
-      severity: GuidanceSeverity.success,
-      defaultEnglishText: 'Challenge sequence completed.',
-      canUseHapticFeedback: true,
-      semanticLabel: 'Challenge completed',
-    );
-  }
+  GuidanceMessage challengeCompleted() =>
+      GuidanceCatalog.messageFor(GuidanceCode.challengeCompleted);
 
   /// Retry challenge message.
-  GuidanceMessage retryChallenge() {
-    return const GuidanceMessage(
-      code: GuidanceCode.retryChallenge,
-      severity: GuidanceSeverity.warning,
-      defaultEnglishText: 'Please retry this step.',
-      canUseHapticFeedback: true,
-      semanticLabel: 'Retry challenge',
-    );
-  }
+  GuidanceMessage retryChallenge() =>
+      GuidanceCatalog.messageFor(GuidanceCode.retryChallenge);
 
   /// Builds a slow-processing warning from [diagnostics], if needed.
   List<GuidanceMessage> fromDiagnostics(LivenessDiagnostics diagnostics) {
     if (diagnostics.averageProcessingMs >= 120) {
-      return const <GuidanceMessage>[
-        GuidanceMessage(
-          code: GuidanceCode.processingSlow,
-          severity: GuidanceSeverity.warning,
-          defaultEnglishText:
-              'Processing is slow on this device. Using safer performance settings.',
-          semanticLabel: 'Processing slow',
-        ),
+      return <GuidanceMessage>[
+        GuidanceCatalog.messageFor(GuidanceCode.processingSlow),
       ];
     }
     return const <GuidanceMessage>[];
@@ -226,10 +150,24 @@ class GuidanceMessageBuilder {
       if (diagnostics != null) ...fromDiagnostics(diagnostics),
     ];
 
-    // Prefer the first highest-severity unique code.
     final seen = <GuidanceCode>{};
     final ordered = messages.toList()
       ..sort((a, b) => b.severity.index.compareTo(a.severity.index));
     return ordered.where((m) => seen.add(m.code)).toList(growable: false);
+  }
+}
+
+extension on GuidanceMessage {
+  GuidanceMessage copyWith({String? defaultEnglishText}) {
+    return GuidanceMessage(
+      code: code,
+      messageKey: messageKey,
+      severity: severity,
+      defaultEnglishText: defaultEnglishText ?? this.defaultEnglishText,
+      canUseHapticFeedback: canUseHapticFeedback,
+      semanticLabel: semanticLabel,
+      announceForAccessibility: announceForAccessibility,
+      highContrastLabel: highContrastLabel,
+    );
   }
 }

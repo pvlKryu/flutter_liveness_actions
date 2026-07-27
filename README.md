@@ -151,7 +151,42 @@ Optimized for a wide range of Android devices, including lower-end phones, subje
 
 `GuidanceMessageBuilder` returns metadata (code, severity, default text, semantic labels, haptic hints) for your UI — no widgets are forced by the package.
 
-## Audit event example
+In 0.3.0, guidance uses stable `messageKey` values from `GuidanceCatalog` for localization:
+
+```dart
+final messages = GuidanceMessageBuilder().fromSignal(signal);
+final text = messages.first.resolveText((key) => lookupLocalized(key));
+```
+
+Each `GuidanceMessage` also carries accessibility metadata (`semanticLabel`, `announceForAccessibility`, `highContrastLabel`, `canUseHapticFeedback`).
+
+## Randomized challenge sequences
+
+Use `ChallengeSequenceFactory` with `randomize: true` and an optional seed for reproducible step order:
+
+```dart
+final sequence = const ChallengeSequenceFactory().create(
+  FaceChallengeConfig(
+    randomize: true,
+    seed: 42,
+    maxSteps: 4,
+    requireCenterFaceFirst: true,
+  ),
+);
+```
+
+## Audit trail
+
+`AuditTrailRecorder` records a privacy-safe timeline of session events. Pass it to `AuditEventBuilder` to include `events` in the audit JSON:
+
+```dart
+final auditBuilder = AuditEventBuilder(
+  sessionId: 'demo',
+  sequenceId: sequence.sequenceId,
+  packageVersion: '0.3.0',
+  trailRecorder: AuditTrailRecorder(),
+)..recordCameraReady();
+```
 
 ```json
 {
@@ -178,7 +213,7 @@ Optimized for a wide range of Android devices, including lower-end phones, subje
 
 ## Limitations
 
-- Android and iOS only in v0.2.0
+- Android and iOS only in v0.3.0
 - Heuristic quality checks (brightness/blur) are limited where noted
 - Not validated for regulated identity use cases
 - Device and camera compatibility varies
@@ -186,8 +221,8 @@ Optimized for a wide range of Android devices, including lower-end phones, subje
 ## Roadmap
 
 - **0.1.0** — Core pipeline, example app, initial tests
-- **0.2.0** — Adaptive profiles, improved quality gate, lifecycle handling, live camera example (current)
-- **0.3.0** — Randomized challenges, accessibility hooks, localization-ready guidance
+- **0.2.0** — Adaptive profiles, improved quality gate, lifecycle handling, live camera example
+- **0.3.0** — Randomized challenges, accessibility hooks, localization-ready guidance, audit trail (current)
 - **0.5.0** — Multi-device testing, API review, expanded docs
 - **0.9.0** — Release candidate, stable public API
 - **1.0.0** — Stable API after external review and device testing

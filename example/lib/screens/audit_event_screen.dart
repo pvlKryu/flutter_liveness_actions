@@ -6,12 +6,21 @@ class AuditEventScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final builder = AuditEventBuilder(
-      sessionId: 'demo-session-123',
-      sequenceId: DefaultChallenges.defaultSequence().sequenceId,
-      packageVersion: '0.2.0',
-      challengeNonce: 'optional-demo-nonce',
-    );
+    final passedBuilder =
+        ModalRoute.of(context)?.settings.arguments as AuditEventBuilder?;
+    final builder = passedBuilder ??
+        AuditEventBuilder(
+          sessionId: 'demo-session-123',
+          sequenceId: DefaultChallenges.defaultSequence().sequenceId,
+          packageVersion: '0.3.0',
+          challengeNonce: 'optional-demo-nonce',
+        );
+
+    if (passedBuilder == null) {
+      builder.recordCameraReady();
+      builder.recordQualityGatePassed();
+    }
+
     final event = builder.build(
       challengeState: FaceChallengeState.initial(
         DefaultChallenges.defaultSequence().steps,

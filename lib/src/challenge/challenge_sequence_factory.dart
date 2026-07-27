@@ -4,26 +4,29 @@ import '../config/challenge_config.dart';
 import '../models/challenge_sequence.dart';
 import '../models/challenge_step.dart';
 import '../models/face_action_type.dart';
+import '../guidance/guidance_catalog.dart';
 import 'default_challenges.dart';
 
-/// challenge sequence factory.
+/// Builds default or randomized challenge sequences.
 class ChallengeSequenceFactory {
-  /// Creates an instance with optional overrides.
+  /// Creates a challenge sequence factory.
   const ChallengeSequenceFactory();
 
-  /// create.
+  /// Creates a challenge sequence from [config].
   FaceChallengeSequence create(FaceChallengeConfig config) {
     if (!config.randomize) {
       return DefaultChallenges.defaultSequence();
     }
-    final random = Random(config.seed);
-    final steps = List<FaceActionType>.from(config.allowedSteps)
-      ..shuffle(random);
-    final selected = steps.take(config.maxSteps).toList(growable: false);
+
+    final seed = config.seed ?? DateTime.now().millisecondsSinceEpoch;
+    final random = Random(seed);
+    final selected = _selectSteps(config, random);
+    final nonce = _nonceFor(seed, random);
+
     return FaceChallengeSequence(
-      sequenceId: 'sequence-${DateTime.now().millisecondsSinceEpoch}',
-      challengeNonce: 'nonce-${random.nextInt(999999)}',
-      seed: config.seed,
+      sequenceId: '${config.sequenceIdPrefix}-$seed',
+      challengeNonce: nonce,
+      seed: seed,
       steps: selected
           .asMap()
           .entries
@@ -31,7 +34,7 @@ class ChallengeSequenceFactory {
             (entry) => FaceChallengeStep(
               id: 'step-${entry.key}',
               type: entry.value,
-              instruction: _instructionFor(entry.value),
+              instruction: GuidanceCatalog.instructionFor(entry.value),
               status: ChallengeStepStatus.pending,
               timeout: config.stepTimeout,
             ),
@@ -40,19 +43,38 @@ class ChallengeSequenceFactory {
     );
   }
 
-  ///  instruction for.
-  String _instructionFor(FaceActionType action) {
-    switch (action) {
-      case FaceActionType.centerFace:
-        return 'Center your face in the frame.';
-      case FaceActionType.blinkOnce:
-        return 'Blink once.';
-      case FaceActionType.turnHeadLeft:
-        return 'Turn your head left.';
-      case FaceActionType.turnHeadRight:
-        return 'Turn your head right.';
-      case FaceActionType.holdStill:
-        return 'Hold still.';
+  List<FaceActionType> _selectSteps(
+    FaceChallengeConfig config,
+    Random random,
+  ) {
+    final pool = List<FaceActionType>.from(config.allowedSteps);
+    if (pool.isEmpty) {
+      return const <FaceActionType>[];
     }
+
+    final selected = <FaceActionType>[];
+    if (config.requireCenterFaceFirst &&
+        pool.contains(FaceActionType.centerFace)) {
+      selected.add(FaceActionType.centerFace);
+      if (!config.allowDuplicateSteps) {
+        pool.remove(FaceActionType.centerFace);
+      }
+    }
+
+    pool.shuffle(random);
+    for (final step in pool) {
+      if (selected.length >= config.maxSteps) {
+        break;
+      }
+      if (!config.allowDuplicateSteps && selected.contains(step)) {
+        continue;
+      }
+      selected.add(step);
+    }
+    return selected;
+  }
+
+  String _nonceFor(int seed, Random random) {
+    return 'nonce-${seed.toRadixString(16)}-${random.nextInt(999999)}';
   }
 }

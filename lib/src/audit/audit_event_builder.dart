@@ -1,10 +1,12 @@
+import '../models/challenge_event.dart';
 import '../models/challenge_state.dart';
 import '../models/challenge_step.dart';
 import '../models/liveness_diagnostics.dart';
 import '../models/onboarding_audit_event.dart';
 import '../privacy/privacy_guard.dart';
+import 'audit_trail_recorder.dart';
 
-/// audit event builder.
+/// Builds privacy-safe onboarding audit events with optional trail support.
 class AuditEventBuilder {
   /// Creates a builder for a challenge session audit trail.
   AuditEventBuilder({
@@ -12,28 +14,90 @@ class AuditEventBuilder {
     required this.sequenceId,
     required this.packageVersion,
     PrivacyGuard? privacyGuard,
+    AuditTrailRecorder? trailRecorder,
     DateTime? startedAt,
     this.challengeNonce,
   })  : _privacyGuard = privacyGuard ?? const PrivacyGuard(),
-        _startedAt = startedAt ?? DateTime.now();
+        _trailRecorder = trailRecorder ?? AuditTrailRecorder(),
+        _startedAt = startedAt ?? DateTime.now() {
+    _trailRecorder.record(AuditTrailEventType.sessionStarted);
+  }
 
-  /// session id.
+  /// Session identifier for the demo flow.
   final String sessionId;
 
-  /// sequence id.
+  /// Challenge sequence identifier.
   final String sequenceId;
 
-  /// challenge nonce.
+  /// Optional demo nonce for randomized sequences.
   final String? challengeNonce;
 
-  /// package version.
+  /// Package version string embedded in audit output.
   final String packageVersion;
 
-  ///  privacy guard.
   final PrivacyGuard _privacyGuard;
-
-  ///  started at.
+  final AuditTrailRecorder _trailRecorder;
   final DateTime _startedAt;
+
+  /// Underlying audit trail recorder.
+  AuditTrailRecorder get trailRecorder => _trailRecorder;
+
+  /// Records that the camera is ready for local analysis.
+  void recordCameraReady() {
+    _trailRecorder.record(AuditTrailEventType.cameraReady);
+  }
+
+  /// Records that the quality gate accepted a frame.
+  void recordQualityGatePassed() {
+    _trailRecorder.record(AuditTrailEventType.qualityGatePassed);
+  }
+
+  /// Records a [FaceChallengeEvent] in the audit trail.
+  void recordChallengeEvent(FaceChallengeEvent event) {
+    switch (event.type) {
+      case FaceChallengeEventType.challengeStarted:
+        _trailRecorder.record(AuditTrailEventType.challengeStarted);
+      case FaceChallengeEventType.stepPassed:
+        _trailRecorder.record(
+          AuditTrailEventType.stepPassed,
+          stepId: event.stepId,
+          message: event.message,
+        );
+      case FaceChallengeEventType.stepFailed:
+        _trailRecorder.record(
+          AuditTrailEventType.stepFailed,
+          stepId: event.stepId,
+          message: event.message,
+          metadata: <String, Object?>{
+            'failureReason': event.failureReason.name,
+          },
+        );
+      case FaceChallengeEventType.retryRequested:
+        _trailRecorder.record(
+          AuditTrailEventType.retryRequested,
+          stepId: event.stepId,
+        );
+      case FaceChallengeEventType.challengeCompleted:
+        _trailRecorder.record(AuditTrailEventType.challengeCompleted);
+      case FaceChallengeEventType.challengeFailed:
+        _trailRecorder.record(
+          AuditTrailEventType.stepFailed,
+          stepId: event.stepId,
+          message: 'challenge_failed',
+          metadata: <String, Object?>{
+            'failureReason': event.failureReason.name,
+          },
+        );
+    }
+  }
+
+  /// Records a diagnostics summary snapshot.
+  void recordDiagnosticsSummary(LivenessDiagnostics diagnostics) {
+    _trailRecorder.record(
+      AuditTrailEventType.diagnosticsSummary,
+      metadata: diagnostics.toJson(),
+    );
+  }
 
   /// Builds a privacy-safe [OnboardingAuditEvent] from challenge state.
   OnboardingAuditEvent build({
@@ -43,6 +107,7 @@ class AuditEventBuilder {
     required LivenessDiagnostics diagnostics,
     DateTime? completedAt,
   }) {
+    recordDiagnosticsSummary(diagnostics);
     return OnboardingAuditEvent(
       sessionId: sessionId,
       sequenceId: sequenceId,
@@ -53,6 +118,7 @@ class AuditEventBuilder {
       faceDetected: faceDetected,
       multipleFacesDetected: multipleFacesDetected,
       steps: challengeState.steps.map(_stepToMap).toList(growable: false),
+      events: _trailRecorder.toJsonList(),
       rawImagesStored: false,
       identityDecision: 'not_performed',
       creditDecision: 'not_performed',
@@ -62,7 +128,6 @@ class AuditEventBuilder {
     );
   }
 
-  ///  step to map.
   Map<String, Object?> _stepToMap(FaceChallengeStep step) {
     final durationMs = step.startedAt == null || step.completedAt == null
         ? null

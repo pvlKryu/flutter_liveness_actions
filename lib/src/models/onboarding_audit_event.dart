@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-/// onboarding audit event.
+/// Privacy-safe onboarding audit event for demo flows.
 class OnboardingAuditEvent extends Equatable {
-  /// Creates an instance with optional overrides.
+  /// Creates an onboarding audit event.
   const OnboardingAuditEvent({
     required this.sessionId,
     required this.sequenceId,
@@ -13,6 +13,7 @@ class OnboardingAuditEvent extends Equatable {
     required this.steps,
     this.challengeNonce,
     this.completedAt,
+    this.events = const <Map<String, Object?>>[],
     this.rawImagesStored = false,
     this.identityDecision = 'not_performed',
     this.creditDecision = 'not_performed',
@@ -21,49 +22,52 @@ class OnboardingAuditEvent extends Equatable {
     this.privacy = const <String, Object?>{},
   });
 
-  /// session id.
+  /// Demo session identifier.
   final String sessionId;
 
-  /// sequence id.
+  /// Challenge sequence identifier.
   final String sequenceId;
 
-  /// challenge nonce.
+  /// Optional demo nonce for randomized sequences.
   final String? challengeNonce;
 
-  /// started at.
+  /// Session start timestamp.
   final DateTime startedAt;
 
-  /// completed at.
+  /// Optional completion timestamp.
   final DateTime? completedAt;
 
-  /// package version.
+  /// Package version string.
   final String packageVersion;
 
-  /// face detected.
+  /// Whether a face was detected during the session.
   final bool faceDetected;
 
-  /// multiple faces detected.
+  /// Whether multiple faces were detected.
   final bool multipleFacesDetected;
 
-  /// steps.
+  /// Step summaries (derived signals only).
   final List<Map<String, Object?>> steps;
 
-  /// raw images stored.
+  /// Timeline of privacy-safe audit trail events.
+  final List<Map<String, Object?>> events;
+
+  /// Whether raw images were stored (always false by default).
   final bool rawImagesStored;
 
-  /// identity decision.
+  /// Identity decision marker (not performed by this package).
   final String identityDecision;
 
-  /// credit decision.
+  /// Credit decision marker (not performed by this package).
   final String creditDecision;
 
-  /// demo only.
+  /// Demo-only marker.
   final bool demoOnly;
 
-  /// diagnostics.
+  /// Diagnostics snapshot.
   final Map<String, Object?> diagnostics;
 
-  /// privacy.
+  /// Privacy flags.
   final Map<String, Object?> privacy;
 
   /// Serializes the audit event to JSON-compatible maps.
@@ -77,6 +81,7 @@ class OnboardingAuditEvent extends Equatable {
         'faceDetected': faceDetected,
         'multipleFacesDetected': multipleFacesDetected,
         'steps': steps,
+        'events': events,
         'rawImagesStored': rawImagesStored,
         'identityDecision': identityDecision,
         'creditDecision': creditDecision,
@@ -86,8 +91,6 @@ class OnboardingAuditEvent extends Equatable {
       };
 
   @override
-
-  /// props.
   List<Object?> get props => [
         sessionId,
         sequenceId,
@@ -98,6 +101,7 @@ class OnboardingAuditEvent extends Equatable {
         faceDetected,
         multipleFacesDetected,
         steps,
+        events,
         rawImagesStored,
         identityDecision,
         creditDecision,
