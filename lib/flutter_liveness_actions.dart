@@ -45,4 +45,7 @@ export 'src/performance/performance_profile.dart';
 export 'src/privacy/privacy_guard.dart';
 export 'src/quality/face_quality_gate.dart';
 export 'src/quality/face_quality_warning.dart';
+export 'src/session/liveness_action_session.dart';
+export 'src/session/liveness_action_snapshot.dart';
 export 'src/smoothing/signal_smoother.dart';
+export 'src/version.dart';

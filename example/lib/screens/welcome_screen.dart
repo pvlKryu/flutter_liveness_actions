@@ -22,15 +22,26 @@ class WelcomeScreen extends StatelessWidget {
               child: const Text('Live camera demo'),
             ),
             const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => Navigator.pushNamed(context, '/live-challenge'),
+              child: const Text('Live camera challenge'),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.tonal(
+              onPressed: () =>
+                  Navigator.pushNamed(context, '/live-challenge-random'),
+              child: const Text('Live randomized challenge'),
+            ),
+            const SizedBox(height: 12),
             FilledButton.tonal(
               onPressed: () => Navigator.pushNamed(context, '/challenge'),
-              child: const Text('Default challenge flow'),
+              child: const Text('Simulated challenge flow'),
             ),
             const SizedBox(height: 12),
             FilledButton.tonal(
               onPressed: () =>
                   Navigator.pushNamed(context, '/challenge-random'),
-              child: const Text('Randomized challenge flow'),
+              child: const Text('Simulated randomized challenge'),
             ),
           ],
         ),

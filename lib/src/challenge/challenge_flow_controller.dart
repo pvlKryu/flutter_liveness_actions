@@ -10,7 +10,7 @@ import '../models/face_action_signal.dart';
 import 'challenge_sequence_factory.dart';
 import 'challenge_step_evaluator.dart';
 
-/// challenge flow controller.
+/// Coordinates guided face-action challenge sequences from derived signals.
 class ChallengeFlowController {
   /// Creates a controller with optional challenge [config].
   ChallengeFlowController({
@@ -23,32 +23,25 @@ class ChallengeFlowController {
     reset();
   }
 
-  ///  config.
   final FaceChallengeConfig _config;
-
-  ///  sequence factory.
   final ChallengeSequenceFactory _sequenceFactory;
-
-  ///  step evaluator.
   final ChallengeStepEvaluator _stepEvaluator;
-
-  ///  events.
   final StreamController<FaceChallengeEvent> _events =
       StreamController<FaceChallengeEvent>.broadcast();
 
   late FaceChallengeSequence _sequence;
   late FaceChallengeState _state;
 
-  /// events.
+  /// Broadcast stream of challenge lifecycle events.
   Stream<FaceChallengeEvent> get events => _events.stream;
 
-  /// state.
+  /// Current challenge progress state.
   FaceChallengeState get state => _state;
 
-  /// sequence.
+  /// Active challenge sequence for this controller instance.
   FaceChallengeSequence get sequence => _sequence;
 
-  /// reset.
+  /// Rebuilds a new sequence and emits [FaceChallengeEventType.challengeStarted].
   void reset() {
     _sequence = _sequenceFactory.create(_config);
     _state = FaceChallengeState.initial(_sequence.steps);
@@ -58,7 +51,7 @@ class ChallengeFlowController {
     ));
   }
 
-  /// process signal.
+  /// Advances the challenge using a derived [signal].
   void processSignal(FaceActionSignal signal, {DateTime? now}) {
     final timestamp = now ?? DateTime.now();
     if (_state.completed || _state.failed || _state.currentStep == null) {
@@ -86,7 +79,7 @@ class ChallengeFlowController {
     }
   }
 
-  /// retry current step.
+  /// Retries the current step and increments its retry counter.
   void retryCurrentStep() {
     final current = _state.currentStep;
     if (current == null) {
@@ -106,7 +99,6 @@ class ChallengeFlowController {
     ));
   }
 
-  ///  pass current.
   void _passCurrent(DateTime timestamp) {
     final current = _state.currentStep!;
     _replaceCurrent(current.copyWith(
@@ -140,7 +132,6 @@ class ChallengeFlowController {
     }
   }
 
-  ///  fail current.
   void _failCurrent(ChallengeFailureReason reason, DateTime timestamp) {
     final current = _state.currentStep!;
     if (current.retryCount < _config.maxRetriesPerStep) {
@@ -168,7 +159,6 @@ class ChallengeFlowController {
     ));
   }
 
-  ///  replace current.
   void _replaceCurrent(FaceChallengeStep step) {
     final updated = List<FaceChallengeStep>.from(_state.steps);
     updated[_state.currentStepIndex] = step;
@@ -184,7 +174,7 @@ class ChallengeFlowController {
     );
   }
 
-  /// dispose.
+  /// Closes the event stream.
   void dispose() {
     _events.close();
   }

@@ -86,12 +86,18 @@ class FrameProcessingController {
   }
 
   /// Marks that frame analysis completed in [duration].
-  void markProcessingCompleted(Duration duration) {
+  ///
+  /// [processedAt] should match the accepted frame timestamp when available so
+  /// FPS throttling stays correct for synthetic / replayed timestamps.
+  void markProcessingCompleted(
+    Duration duration, {
+    DateTime? processedAt,
+  }) {
     _isProcessing = false;
     if (_inFlight > 0) {
       _inFlight -= 1;
     }
-    _lastProcessedAt = DateTime.now();
+    _lastProcessedAt = processedAt ?? DateTime.now();
     _processedFrames += 1;
     _avgProcessingMs = ((_avgProcessingMs * (_processedFrames - 1)) +
             duration.inMilliseconds) /

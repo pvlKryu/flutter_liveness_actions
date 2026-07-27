@@ -9,16 +9,26 @@ on:
 jobs:
   analyze-and-test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter-channel: [stable]
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
-      - name: Install dependencies
+          channel: ${{ matrix.flutter-channel }}
+      - name: Install package dependencies
         run: flutter pub get
       - name: Verify formatting
         run: dart format --set-exit-if-changed .
-      - name: Analyze
+      - name: Analyze package
         run: flutter analyze
-      - name: Test
+      - name: Test package
         run: flutter test
+      - name: Install example dependencies
+        run: flutter pub get
+        working-directory: example
+      - name: Analyze example
+        run: flutter analyze
+        working-directory: example

@@ -1,3 +1,12 @@
+## 0.5.0
+
+- Added `LivenessActionSession` facade for camera-agnostic pipeline orchestration.
+- Added `LivenessActionSnapshot` and `packageVersion` constant.
+- Expanded docs: architecture, API review, device testing checklist.
+- Example: live camera challenge flows (default + randomized) using the session facade.
+- CI analyzes the example app; Flutter channel matrix scaffold.
+- Additional session integration tests.
+
 ## 0.3.0
 
 - Randomized challenge sequences with seed, nonce, and center-face-first option.

@@ -6,6 +6,7 @@ import 'screens/camera_permission_screen.dart';
 import 'screens/challenge_demo_screen.dart';
 import 'screens/diagnostics_screen.dart';
 import 'screens/disclaimer_screen.dart';
+import 'screens/live_challenge_screen.dart';
 import 'screens/welcome_screen.dart';
 
 class ExampleApp extends StatelessWidget {
@@ -27,6 +28,9 @@ class ExampleApp extends StatelessWidget {
         '/camera': (_) => const CameraDemoScreen(),
         '/challenge': (_) => const ChallengeDemoScreen(),
         '/challenge-random': (_) => const ChallengeDemoScreen(randomized: true),
+        '/live-challenge': (_) => const LiveChallengeScreen(),
+        '/live-challenge-random': (_) =>
+            const LiveChallengeScreen(randomized: true),
         '/audit': (_) => const AuditEventScreen(),
         '/diagnostics': (_) => const DiagnosticsScreen(),
       },

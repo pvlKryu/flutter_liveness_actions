@@ -11,17 +11,31 @@ class DiagnosticsScreen extends StatefulWidget {
 }
 
 class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
-  late final FrameProcessingController _controller;
   late final AdaptivePerformanceController _adaptive;
+  late final FrameProcessingController _controller;
   late LivenessDiagnostics _diagnostics;
   late DeviceCapabilityProfile _capability;
+  bool _ready = false;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_ready) {
+      return;
+    }
+    _ready = true;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is LivenessDiagnostics) {
+      _diagnostics = args;
+      _capability = DeviceCapabilityProfile.fromDiagnostics(_diagnostics);
+      _adaptive = AdaptivePerformanceController(
+        initialConfig: PerformanceConfig.balanced(),
+      );
+      _controller = FrameProcessingController(config: _adaptive.config);
+      return;
+    }
     _adaptive = AdaptivePerformanceController();
     _controller = FrameProcessingController(config: _adaptive.config);
-    // Simulate a short processing sample for demo when opened without camera.
     for (var i = 0; i < 24; i++) {
       final ts = DateTime(2026, 1, 1).add(Duration(milliseconds: i * 80));
       if (_controller.shouldProcessFrame(ts)) {
@@ -39,6 +53,9 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_ready) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Diagnostics')),
       body: ListView(

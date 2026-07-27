@@ -34,7 +34,7 @@ class _ChallengeDemoScreenState extends State<ChallengeDemoScreen> {
       sessionId: 'demo-session-${widget.randomized ? 'random' : 'default'}',
       sequenceId: _controller.sequence.sequenceId,
       challengeNonce: _controller.sequence.challengeNonce,
-      packageVersion: '0.3.0',
+      packageVersion: packageVersion,
     );
     _controller.events.listen(_auditBuilder.recordChallengeEvent);
     _updateGuidance();

@@ -27,7 +27,7 @@ Liveness-aware face action helpers for Flutter mobile apps using Google ML Kit F
 - Face comparison or person identification
 - KYC, AML, fraud prevention, or credit decisioning
 - Raw image storage or upload (by design)
-- Web, desktop, macOS, Windows, or Linux support (v0.1.0)
+- Web, desktop, macOS, Windows, or Linux support (Android/iOS only)
 
 ## Why this package exists
 
@@ -36,30 +36,24 @@ Camera-based onboarding prototypes often reimplement the same layers: adapter �
 ## Architecture overview
 
 ```
-Camera / ML Kit Face
+Camera / ML Kit (app-owned)
         ↓
-MlKitFaceAdapter
+MlKitFaceAdapter → FaceActionFrame
         ↓
-FaceActionFrame
+LivenessActionSession
+  FrameProcessingController → FaceActionAnalyzer → ChallengeFlowController
+  GuidanceMessageBuilder → AuditEventBuilder
         ↓
-FaceActionAnalyzer
-        ↓
-SignalSmoother
-        ↓
-FaceQualityGate
-        ↓
-ChallengeFlowController
-        ↓
-GuidanceMessageBuilder
-        ↓
-OnboardingAuditEvent
+LivenessActionSnapshot / OnboardingAuditEvent
 ```
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/API.md](docs/API.md).
 
 ## Installation
 
 ```yaml
 dependencies:
-  flutter_liveness_actions: ^0.1.0
+  flutter_liveness_actions: ^0.5.0
   google_mlkit_face_detection: ^0.14.0
 ```
 
@@ -84,14 +78,32 @@ Add to `ios/Runner/Info.plist`:
 
 ## Quick start
 
+Preferred integration uses `LivenessActionSession`:
+
 ```dart
 import 'package:flutter_liveness_actions/flutter_liveness_actions.dart';
 
+final session = LivenessActionSession(
+  enableChallenge: true,
+  sessionId: 'onboarding-1',
+);
+
+// After ML Kit returns faces for an accepted camera frame:
+if (!session.acceptFrame(DateTime.now())) return;
+session.markProcessingStarted();
+final started = DateTime.now();
+final frame = const MlKitFaceAdapter().fromFaces(faces, imageSize: imageSize);
+final snap = session.completeFrame(frame, DateTime.now().difference(started));
+// Use snap.guidance / snap.challengeState / snap.diagnostics
+```
+
+Lower-level building blocks remain available:
+
+```dart
 final adapter = MlKitFaceAdapter();
 final analyzer = FaceActionAnalyzer();
 final challenge = ChallengeFlowController();
 
-// After ML Kit returns faces:
 final frame = adapter.fromFaces(faces, imageSize: imageSize);
 final result = analyzer.analyze(frame);
 challenge.processSignal(result.signal);
@@ -183,7 +195,7 @@ final sequence = const ChallengeSequenceFactory().create(
 final auditBuilder = AuditEventBuilder(
   sessionId: 'demo',
   sequenceId: sequence.sequenceId,
-  packageVersion: '0.3.0',
+  packageVersion: packageVersion,
   trailRecorder: AuditTrailRecorder(),
 )..recordCameraReady();
 ```
@@ -213,17 +225,17 @@ final auditBuilder = AuditEventBuilder(
 
 ## Limitations
 
-- Android and iOS only in v0.3.0
+- Android and iOS only in v0.5.0
 - Heuristic quality checks (brightness/blur) are limited where noted
 - Not validated for regulated identity use cases
-- Device and camera compatibility varies
+- Device and camera compatibility varies — see [docs/DEVICE_TESTING.md](docs/DEVICE_TESTING.md)
 
 ## Roadmap
 
 - **0.1.0** — Core pipeline, example app, initial tests
 - **0.2.0** — Adaptive profiles, improved quality gate, lifecycle handling, live camera example
-- **0.3.0** — Randomized challenges, accessibility hooks, localization-ready guidance, audit trail (current)
-- **0.5.0** — Multi-device testing, API review, expanded docs
+- **0.3.0** — Randomized challenges, accessibility hooks, localization-ready guidance, audit trail
+- **0.5.0** — Session facade, API review docs, device testing checklist, live challenge example (current)
 - **0.9.0** — Release candidate, stable public API
 - **1.0.0** — Stable API after external review and device testing
 
