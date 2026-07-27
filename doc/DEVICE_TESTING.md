@@ -1,6 +1,6 @@
 # Device testing checklist
 
-Manual multi-device validation for Android/iOS before 0.9.0 / 1.0.0.
+Manual multi-device validation for Android/iOS (recommended for maintainers and before major dependency upgrades).
 
 > Core package logic is camera-agnostic. Device variance mostly appears in camera formats, ML Kit timing, and thermal/CPU throttling.
 
@@ -51,4 +51,4 @@ Run the **example** app:
 
 ## CI coverage vs device coverage
 
-CI validates format/analyze/unit tests on Linux. It does **not** replace on-device camera/ML Kit validation. Track device runs in release notes for 0.9.0+.
+CI validates format/analyze/unit tests on Linux. It does **not** replace on-device camera/ML Kit validation. Track device runs when upgrading camera, ML Kit, or Flutter majors.

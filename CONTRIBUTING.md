@@ -13,7 +13,7 @@ This package targets **Android and iOS** mobile Flutter apps. Please avoid addin
 - Avoid identity verification, KYC, AML, or fraud-prevention claims in code and docs.
 - Add unit tests for behavioral changes.
 - Format with the **Flutter SDK** Dart (`dart format .` after `flutter` is on PATH), then run `flutter analyze` and `flutter test` before opening a PR.
-- Prefer additive changes; see [doc/STABILITY.md](doc/STABILITY.md) for the 0.9.0 RC freeze policy.
+- Prefer additive changes; see [doc/STABILITY.md](doc/STABILITY.md) for the 1.x SemVer policy.
 
 ## Pull requests
 

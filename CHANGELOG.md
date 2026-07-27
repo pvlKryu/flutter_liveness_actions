@@ -1,3 +1,10 @@
+## 1.0.0
+
+- First stable release.
+- Public API freeze documented in `doc/API.md` and `doc/STABILITY.md`.
+- SemVer compatibility policy for 1.x.
+- Documentation and example polish for production host integration.
+
 ## 0.9.0
 
 - Release candidate: public API freeze candidate (see `doc/STABILITY.md`, `doc/API.md`).

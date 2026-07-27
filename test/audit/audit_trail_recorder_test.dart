@@ -24,7 +24,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 's1',
         sequenceId: 'seq1',
-        packageVersion: '0.3.0',
+        packageVersion: packageVersion,
       );
       builder.recordCameraReady();
       builder.recordQualityGatePassed();

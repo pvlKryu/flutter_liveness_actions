@@ -1,7 +1,7 @@
-# Public API (0.9.0 release candidate)
+# Public API (1.0.0 stable)
 
-This document freezes the intended public surface for the 0.9.0 RC.
-Breaking changes after 0.9.0 require a major bump (see [STABILITY.md](STABILITY.md)).
+This document describes the **stable** public surface for `1.0.0`.
+Breaking changes require a new major version (see [STABILITY.md](STABILITY.md)).
 
 ## Preferred entry points
 
