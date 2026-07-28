@@ -8,7 +8,7 @@ Liveness-aware face action helpers for Flutter mobile apps using Google ML Kit F
 
 `flutter_liveness_actions` helps Flutter developers build liveness-aware face-action challenge flows using Google ML Kit Face Detection. It provides reusable helpers for blink detection, head movement detection, face positioning, quality gates, challenge-state management, performance throttling, guidance messages, diagnostics, and audit-friendly onboarding events.
 
-**Stable API:** `1.0.x` — see [doc/API.md](doc/API.md) and [doc/STABILITY.md](doc/STABILITY.md).
+**Stable API:** `1.x` — see [doc/API.md](doc/API.md) and [doc/STABILITY.md](doc/STABILITY.md). Additive features such as 1.1.0 target paths remain SemVer-compatible.
 
 **This package is not an identity verification, biometric authentication, KYC, AML, fraud-prevention, or credit-decisioning SDK.** It only provides derived interaction signals and challenge-flow utilities.
 
@@ -55,7 +55,7 @@ See [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md), [doc/API.md](doc/API.md), and [d
 
 ```yaml
 dependencies:
-  flutter_liveness_actions: ^1.0.1
+  flutter_liveness_actions: ^1.1.0
   google_mlkit_face_detection: ^0.14.0
 ```
 
@@ -174,6 +174,26 @@ final text = messages.first.resolveText((key) => lookupLocalized(key));
 
 Each `GuidanceMessage` also carries accessibility metadata (`semanticLabel`, `announceForAccessibility`, `highContrastLabel`, `canUseHapticFeedback`).
 
+## Dynamic target challenges (follow-the-dot)
+
+Follow-the-dot challenges are implemented as face-center target tracking, not eye tracking. The package evaluates whether the detected face bounding-box center enters target zones over time. This can help create richer real-time onboarding interactions, but it does not prove identity or prevent spoofing by itself.
+
+```dart
+final targetPath = DefaultTargetPaths.simpleCross();
+final evaluator = TargetPathEvaluator(targets: targetPath);
+final result = evaluator.processFrame(frame);
+```
+
+Challenge presets:
+
+- `DefaultChallenges.basic()` — classic center / blink / turn / hold
+- `DefaultChallenges.lowEndFriendly()` — center / blink / hold
+- `DefaultChallenges.extended()` — adds smile + simple target path
+
+For low-end Android devices, prefer low-end-friendly challenges, larger target zones, fewer target steps, and `PerformanceConfig.lowEndDevice()`.
+
+See [doc/DYNAMIC_CHALLENGES.md](doc/DYNAMIC_CHALLENGES.md) and [doc/THREAT_MODEL.md](doc/THREAT_MODEL.md).
+
 ## Randomized challenge sequences
 
 Use `ChallengeSequenceFactory` with `randomize: true` and an optional seed for reproducible step order:
@@ -227,7 +247,8 @@ final auditBuilder = AuditEventBuilder(
 
 ## Limitations
 
-- Android and iOS only in v1.0.0
+- Android and iOS only in v1.1.0
+- Follow-the-dot is face-center tracking — not eye tracking or gaze estimation
 - Heuristic quality checks (brightness/blur) are limited where noted
 - Not validated for regulated identity use cases
 - Device and camera compatibility varies — see [doc/DEVICE_TESTING.md](doc/DEVICE_TESTING.md) and [doc/PLATFORM.md](doc/PLATFORM.md)
@@ -240,7 +261,8 @@ final auditBuilder = AuditEventBuilder(
 - **0.5.0** — Session facade, API review docs, device testing checklist, live challenge example
 - **0.9.0** — Release candidate, stable public API freeze candidate
 - **1.0.0** — Stable API
-- **1.0.1** — Release-readiness patch (LICENSE, stuck-frame fix, platform camera formats) (current)
+- **1.0.1** — Release-readiness patch (LICENSE, stuck-frame fix, platform camera formats)
+- **1.1.0** — Dynamic target / follow-the-dot challenges + simulator (current)
 
 Post-1.0 work focuses on patch/minor improvements, device validation as dependencies evolve, and optional host-app demos — not breaking API churn.
 

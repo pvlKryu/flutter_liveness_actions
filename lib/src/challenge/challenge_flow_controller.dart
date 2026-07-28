@@ -6,7 +6,11 @@ import '../models/challenge_failure_reason.dart';
 import '../models/challenge_sequence.dart';
 import '../models/challenge_state.dart';
 import '../models/challenge_step.dart';
+import '../models/face_action_frame.dart';
 import '../models/face_action_signal.dart';
+import '../models/face_action_type.dart';
+import '../target/target_path_evaluator.dart';
+import '../target/target_zone.dart';
 import 'challenge_sequence_factory.dart';
 import 'challenge_step_evaluator.dart';
 
@@ -31,6 +35,7 @@ class ChallengeFlowController {
 
   late FaceChallengeSequence _sequence;
   late FaceChallengeState _state;
+  TargetPathEvaluator? _targetEvaluator;
 
   /// Broadcast stream of challenge lifecycle events.
   Stream<FaceChallengeEvent> get events => _events.stream;
@@ -41,10 +46,14 @@ class ChallengeFlowController {
   /// Active challenge sequence for this controller instance.
   FaceChallengeSequence get sequence => _sequence;
 
+  /// Active target-path evaluator when the current step uses target zones.
+  TargetPathEvaluator? get targetEvaluator => _targetEvaluator;
+
   /// Rebuilds a new sequence and emits [FaceChallengeEventType.challengeStarted].
   void reset() {
     _sequence = _sequenceFactory.create(_config);
     _state = FaceChallengeState.initial(_sequence.steps);
+    _targetEvaluator = null;
     _events.add(FaceChallengeEvent(
       type: FaceChallengeEventType.challengeStarted,
       timestamp: DateTime.now(),
@@ -52,29 +61,67 @@ class ChallengeFlowController {
   }
 
   /// Advances the challenge using a derived [signal].
+  ///
+  /// For [FaceActionType.followTargetPath] steps, prefer [processFrame].
   void processSignal(FaceActionSignal signal, {DateTime? now}) {
     final timestamp = now ?? DateTime.now();
     if (_state.completed || _state.failed || _state.currentStep == null) {
       return;
     }
 
-    final current = _state.currentStep!;
-    if (current.status == ChallengeStepStatus.pending) {
-      _replaceCurrent(current.copyWith(
-        status: ChallengeStepStatus.inProgress,
-        startedAt: timestamp,
-      ));
+    final current = _ensureInProgress(timestamp);
+    if (_isTargetPathStep(current)) {
+      return;
     }
 
-    final active = _state.currentStep!;
-    final started = active.startedAt ?? timestamp;
-
-    if (timestamp.difference(started) > active.timeout) {
+    if (timestamp.difference(current.startedAt ?? timestamp) >
+        current.timeout) {
       _failCurrent(ChallengeFailureReason.timeout, timestamp);
       return;
     }
 
-    if (_stepEvaluator.evaluate(active, signal)) {
+    if (_stepEvaluator.evaluate(current, signal)) {
+      _passCurrent(timestamp);
+    }
+  }
+
+  /// Advances geometry-based steps (target path / move-to-zone) using [frame].
+  void processFrame(FaceActionFrame frame, {DateTime? now}) {
+    final timestamp = now ?? frame.timestamp;
+    if (_state.completed || _state.failed || _state.currentStep == null) {
+      return;
+    }
+
+    final current = _ensureInProgress(timestamp);
+
+    if (_isTargetPathStep(current)) {
+      _ensureTargetEvaluator(current);
+      final result = _targetEvaluator!.processFrame(frame);
+      if (result.pathCompleted ||
+          (_targetEvaluator!.state.completed && result.completed)) {
+        _passCurrent(timestamp);
+        return;
+      }
+      if (result.pathFailed || _targetEvaluator!.state.failed) {
+        _failCurrent(
+          _targetEvaluator!.state.failureReason,
+          timestamp,
+        );
+        return;
+      }
+      return;
+    }
+
+    if (timestamp.difference(current.startedAt ?? timestamp) >
+        current.timeout) {
+      _failCurrent(ChallengeFailureReason.timeout, timestamp);
+      return;
+    }
+
+    if (_stepEvaluator.evaluateFrame(current, frame)) {
+      // Instant zone entry for moveTo* / followTarget single-zone steps.
+      // Require a tiny hold via successive frames by checking startedAt age
+      // is unnecessary for demos — hosts may use TargetPathEvaluator for hold.
       _passCurrent(timestamp);
     }
   }
@@ -93,11 +140,41 @@ class ChallengeFlowController {
       failureReason: ChallengeFailureReason.none,
     );
     _replaceCurrent(updated);
+    _targetEvaluator = null;
     _events.add(FaceChallengeEvent(
       type: FaceChallengeEventType.retryRequested,
       timestamp: timestamp,
       stepId: updated.id,
     ));
+  }
+
+  FaceChallengeStep _ensureInProgress(DateTime timestamp) {
+    final current = _state.currentStep!;
+    if (current.status == ChallengeStepStatus.pending) {
+      _replaceCurrent(current.copyWith(
+        status: ChallengeStepStatus.inProgress,
+        startedAt: timestamp,
+      ));
+    }
+    return _state.currentStep!;
+  }
+
+  bool _isTargetPathStep(FaceChallengeStep step) {
+    return step.type == FaceActionType.followTargetPath &&
+        step.targetZones != null &&
+        step.targetZones!.isNotEmpty;
+  }
+
+  void _ensureTargetEvaluator(FaceChallengeStep step) {
+    if (_targetEvaluator != null) {
+      return;
+    }
+    final zones = List<TargetZone>.from(step.targetZones!);
+    _targetEvaluator = TargetPathEvaluator(
+      targets: zones,
+      sequenceId: '${_sequence.sequenceId}-${step.id}',
+      challengeNonce: _sequence.challengeNonce,
+    );
   }
 
   void _passCurrent(DateTime timestamp) {
@@ -112,6 +189,7 @@ class ChallengeFlowController {
       timestamp: timestamp,
       stepId: current.id,
     ));
+    _targetEvaluator = null;
 
     final nextIndex = _state.currentStepIndex + 1;
     final done = nextIndex >= _state.steps.length;
@@ -158,6 +236,7 @@ class ChallengeFlowController {
       stepId: current.id,
       failureReason: reason,
     ));
+    _targetEvaluator = null;
   }
 
   void _replaceCurrent(FaceChallengeStep step) {

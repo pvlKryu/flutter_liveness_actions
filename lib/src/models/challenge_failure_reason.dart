@@ -1,20 +1,26 @@
-/// challenge failure reason.
+/// Reasons a challenge step or target path may fail.
 enum ChallengeFailureReason {
-  /// none.
+  /// No failure.
   none,
 
-  /// timeout.
+  /// Step / target timed out.
   timeout,
 
-  /// quality gate rejected.
+  /// Quality gate rejected the frame.
   qualityGateRejected,
 
-  /// lost face.
+  /// Face was lost during the challenge.
   lostFace,
 
-  /// user cancelled.
+  /// More than one face was detected.
+  multipleFaces,
+
+  /// User cancelled the challenge.
   userCancelled,
 
-  /// unknown.
+  /// Target zone was missed (reserved for host-level policy).
+  targetMissed,
+
+  /// Unknown failure.
   unknown,
 }

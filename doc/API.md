@@ -9,6 +9,8 @@ Breaking changes require a new major version (see [STABILITY.md](STABILITY.md)).
 | --- | --- |
 | `LivenessActionSession` | One object for throttle, analyze, optional challenge, guidance, audit |
 | `LivenessActionSnapshot` | Per-frame immutable session output |
+| `TargetPathEvaluator` / `DefaultTargetPaths` | Face-center follow-the-dot / moving target flows |
+| `TargetChallengeSimulator` | Camera-free target-path tests and demos |
 | `packageVersion` | Embed package version in host audit / telemetry |
 
 ## Primary building blocks
@@ -18,10 +20,12 @@ Safe for most host apps:
 - **Config:** `FaceActionConfig`, `FaceChallengeConfig`, `PerformanceConfig`, `PrivacyConfig`
 - **Adapters:** `MlKitFaceAdapter`
 - **Orchestration:** `FaceActionAnalyzer`, `FaceQualityGate`, `ChallengeFlowController`, `ChallengeSequenceFactory`, `DefaultChallenges`
+- **Target path:** `TargetZone`, `FaceTargetPosition`, `TargetZoneResult`, `TargetPathChallenge`, `TargetPathEvaluator`, `TargetPathFactory`, `DefaultTargetPaths`
 - **Performance:** `FrameProcessingController`, `AdaptivePerformanceController`, `DeviceCapabilityProfile`, `PerformanceProfile`
 - **Guidance:** `GuidanceMessageBuilder`, `GuidanceCatalog`, `GuidanceCode`, `GuidanceMessage`, `GuidanceSeverity`
 - **Audit:** `AuditEventBuilder`, `AuditTrailRecorder`, `AuditEventExporter`, `OnboardingAuditEvent`
 - **Lifecycle:** `LivenessSessionLifecycle`
+- **Simulator:** `TargetChallengeSimulator`
 
 ## Advanced APIs
 

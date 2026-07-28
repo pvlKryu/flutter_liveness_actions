@@ -17,6 +17,7 @@ class GuidanceMessageBuilder {
   String instructionTextFor(FaceActionType type) {
     switch (type) {
       case FaceActionType.centerFace:
+      case FaceActionType.moveToCenter:
         return GuidanceCatalog.messageFor(GuidanceCode.centerFace)
             .defaultEnglishText;
       case FaceActionType.blinkOnce:
@@ -30,6 +31,19 @@ class GuidanceMessageBuilder {
             .defaultEnglishText;
       case FaceActionType.holdStill:
         return GuidanceCatalog.messageFor(GuidanceCode.holdStill)
+            .defaultEnglishText;
+      case FaceActionType.smile:
+        return GuidanceCatalog.messageFor(GuidanceCode.smile)
+            .defaultEnglishText;
+      case FaceActionType.followTarget:
+      case FaceActionType.followTargetPath:
+        return GuidanceCatalog.messageFor(GuidanceCode.followTheDot)
+            .defaultEnglishText;
+      case FaceActionType.moveToTopLeft:
+      case FaceActionType.moveToTopRight:
+      case FaceActionType.moveToBottomLeft:
+      case FaceActionType.moveToBottomRight:
+        return GuidanceCatalog.messageFor(GuidanceCode.moveFaceToTarget)
             .defaultEnglishText;
     }
   }
@@ -85,6 +99,7 @@ class GuidanceMessageBuilder {
   List<GuidanceMessage> forChallengeStep(FaceChallengeStep step) {
     switch (step.type) {
       case FaceActionType.centerFace:
+      case FaceActionType.moveToCenter:
         return <GuidanceMessage>[
           GuidanceCatalog.messageFor(GuidanceCode.centerFace).copyWith(
             defaultEnglishText: 'Center your face in the oval.',
@@ -105,6 +120,22 @@ class GuidanceMessageBuilder {
       case FaceActionType.holdStill:
         return <GuidanceMessage>[
           GuidanceCatalog.messageFor(GuidanceCode.holdStill),
+        ];
+      case FaceActionType.smile:
+        return <GuidanceMessage>[
+          GuidanceCatalog.messageFor(GuidanceCode.smile),
+        ];
+      case FaceActionType.followTarget:
+      case FaceActionType.followTargetPath:
+        return <GuidanceMessage>[
+          GuidanceCatalog.messageFor(GuidanceCode.followTheDot),
+        ];
+      case FaceActionType.moveToTopLeft:
+      case FaceActionType.moveToTopRight:
+      case FaceActionType.moveToBottomLeft:
+      case FaceActionType.moveToBottomRight:
+        return <GuidanceMessage>[
+          GuidanceCatalog.messageFor(GuidanceCode.moveFaceToTarget),
         ];
     }
   }

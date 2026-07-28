@@ -64,7 +64,8 @@ FaceActionSignal signalForStep(FaceActionType type) {
     faceDetected: true,
     multipleFacesDetected: false,
     singleFaceDetected: true,
-    faceCentered: type == FaceActionType.centerFace,
+    faceCentered: type == FaceActionType.centerFace ||
+        type == FaceActionType.moveToCenter,
     faceTooClose: false,
     faceTooFar: false,
     faceOutOfFrame: false,
@@ -74,7 +75,7 @@ FaceActionSignal signalForStep(FaceActionType type) {
     headTurnedRight: type == FaceActionType.turnHeadRight,
     headTilted: false,
     holdStill: type == FaceActionType.holdStill,
-    smileDetected: false,
+    smileDetected: type == FaceActionType.smile,
     qualityStatus: FaceQualityStatus.acceptable,
     positionStatus: FacePositionStatus.centered,
   );

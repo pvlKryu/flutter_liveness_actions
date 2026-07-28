@@ -82,7 +82,7 @@ class FaceActionAnalyzer {
       headTurnedRight: movement.right,
       headTilted: movement.tilted,
       holdStill: _holdStillFrames >= _config.requiredStableFrames,
-      smileDetected: (frame.smilingProbability ?? 0) > 0.7,
+      smileDetected: (frame.smilingProbability ?? 0) >= _config.smileThreshold,
       qualityStatus: quality.status,
       positionStatus: position,
       warnings: quality.warnings.map((w) => w.name).toList(growable: false),

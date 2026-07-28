@@ -1,17 +1,41 @@
-/// face action type.
+/// Supported face-action / challenge step types.
 enum FaceActionType {
-  /// center face.
+  /// Center the face in frame.
   centerFace,
 
-  /// blink once.
+  /// Blink once.
   blinkOnce,
 
-  /// turn head left.
+  /// Turn head left (yaw).
   turnHeadLeft,
 
-  /// turn head right.
+  /// Turn head right (yaw).
   turnHeadRight,
 
-  /// hold still.
+  /// Hold still.
   holdStill,
+
+  /// Smile (uses smilingProbability).
+  smile,
+
+  /// Follow a single on-screen target (face-center tracking).
+  followTarget,
+
+  /// Follow a multi-zone target path (face-center tracking).
+  followTargetPath,
+
+  /// Move face center toward top-left.
+  moveToTopLeft,
+
+  /// Move face center toward top-right.
+  moveToTopRight,
+
+  /// Move face center toward bottom-left.
+  moveToBottomLeft,
+
+  /// Move face center toward bottom-right.
+  moveToBottomRight,
+
+  /// Move face center toward screen center.
+  moveToCenter,
 }

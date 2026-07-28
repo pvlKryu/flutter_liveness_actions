@@ -14,6 +14,7 @@ class FaceActionFrame extends Equatable {
     this.leftEyeOpenProbability,
     this.rightEyeOpenProbability,
     this.smilingProbability,
+    this.headEulerAngleX,
     this.headEulerAngleY,
     this.headEulerAngleZ,
     this.boundingBox,
@@ -41,6 +42,9 @@ class FaceActionFrame extends Equatable {
 
   /// Smile probability from the detector, if available.
   final double? smilingProbability;
+
+  /// Head pitch (Euler X), if available from the detector.
+  final double? headEulerAngleX;
 
   /// Head yaw (Euler Y), if available.
   final double? headEulerAngleY;
@@ -77,6 +81,7 @@ class FaceActionFrame extends Equatable {
         leftEyeOpenProbability,
         rightEyeOpenProbability,
         smilingProbability,
+        headEulerAngleX,
         headEulerAngleY,
         headEulerAngleZ,
         boundingBox,

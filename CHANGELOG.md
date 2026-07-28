@@ -1,3 +1,13 @@
+## 1.1.0
+
+- Added dynamic target / follow-the-dot challenge support.
+- Added target-zone interaction models and evaluators.
+- Added face-position path tracking for interactive onboarding challenges.
+- Added new challenge presets for basic, extended, low-end-friendly, and dynamic target flows.
+- Added simulator scenarios for moving-target challenge testing without camera.
+- Added documentation for dynamic challenge flows and their limitations.
+- Expanded tests for target tracking, path completion, randomized target sequences, and simulator scenarios.
+
 ## 1.0.1
 
 - Replaced placeholder LICENSE with the full MIT License.

@@ -139,6 +139,10 @@ class AuditEventBuilder {
       'durationMs': durationMs,
       'retryCount': step.retryCount,
       'failureReason': step.failureReason.name,
+      if (step.targetZones != null) 'targetCount': step.targetZones!.length,
+      if (step.targetZones != null)
+        'targetPathIds':
+            step.targetZones!.map((z) => z.id).toList(growable: false),
     };
   }
 }

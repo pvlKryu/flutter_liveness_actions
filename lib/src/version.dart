@@ -1,4 +1,4 @@
 /// Package version string embedded in audit events and diagnostics.
 ///
 /// Keep in sync with `pubspec.yaml`.
-const String packageVersion = '1.0.1';
+const String packageVersion = '1.1.0';

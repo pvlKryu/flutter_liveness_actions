@@ -19,6 +19,11 @@ class FaceChallengeConfig {
       FaceActionType.holdStill,
     ],
     this.maxSteps = 5,
+    this.enableTargetPath = false,
+    this.randomizeTargetPath = false,
+    this.targetSeed,
+    this.maxTargetSteps = 5,
+    this.useLowEndFriendlyTargets = false,
   });
 
   /// Timeout for each challenge step.
@@ -48,6 +53,21 @@ class FaceChallengeConfig {
   /// Maximum number of steps in a generated sequence.
   final int maxSteps;
 
+  /// When true, randomized sequences may include a follow-target path step.
+  final bool enableTargetPath;
+
+  /// Randomize target zone order when generating target paths.
+  final bool randomizeTargetPath;
+
+  /// Optional seed for deterministic target path randomization.
+  final int? targetSeed;
+
+  /// Maximum zones in a generated target path.
+  final int maxTargetSteps;
+
+  /// Prefer larger / shorter target paths for lower-end devices.
+  final bool useLowEndFriendlyTargets;
+
   /// Returns a copy with selectively overridden fields.
   FaceChallengeConfig copyWith({
     Duration? stepTimeout,
@@ -59,6 +79,11 @@ class FaceChallengeConfig {
     bool? allowDuplicateSteps,
     List<FaceActionType>? allowedSteps,
     int? maxSteps,
+    bool? enableTargetPath,
+    bool? randomizeTargetPath,
+    int? targetSeed,
+    int? maxTargetSteps,
+    bool? useLowEndFriendlyTargets,
   }) {
     return FaceChallengeConfig(
       stepTimeout: stepTimeout ?? this.stepTimeout,
@@ -71,6 +96,12 @@ class FaceChallengeConfig {
       allowDuplicateSteps: allowDuplicateSteps ?? this.allowDuplicateSteps,
       allowedSteps: allowedSteps ?? this.allowedSteps,
       maxSteps: maxSteps ?? this.maxSteps,
+      enableTargetPath: enableTargetPath ?? this.enableTargetPath,
+      randomizeTargetPath: randomizeTargetPath ?? this.randomizeTargetPath,
+      targetSeed: targetSeed ?? this.targetSeed,
+      maxTargetSteps: maxTargetSteps ?? this.maxTargetSteps,
+      useLowEndFriendlyTargets:
+          useLowEndFriendlyTargets ?? this.useLowEndFriendlyTargets,
     );
   }
 }

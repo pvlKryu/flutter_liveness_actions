@@ -1,9 +1,10 @@
 import 'package:equatable/equatable.dart';
 
+import '../target/target_zone.dart';
 import 'challenge_failure_reason.dart';
 import 'face_action_type.dart';
 
-/// challenge step status.
+/// Challenge step lifecycle status.
 enum ChallengeStepStatus {
   /// Step has not started yet.
   pending,
@@ -18,12 +19,12 @@ enum ChallengeStepStatus {
   failed,
 }
 
-/// Type alias for ChallengeStepType.
+/// Type alias for challenge step action types.
 typedef ChallengeStepType = FaceActionType;
 
-/// face challenge step.
+/// A single step in a guided face-action challenge sequence.
 class FaceChallengeStep extends Equatable {
-  /// Creates an instance with optional overrides.
+  /// Creates a challenge step.
   const FaceChallengeStep({
     required this.id,
     required this.type,
@@ -34,34 +35,38 @@ class FaceChallengeStep extends Equatable {
     this.timeout = const Duration(seconds: 8),
     this.retryCount = 0,
     this.failureReason = ChallengeFailureReason.none,
+    this.targetZones,
   });
 
-  /// id.
+  /// Step identifier.
   final String id;
 
-  /// type.
+  /// Action type to evaluate.
   final ChallengeStepType type;
 
-  /// instruction.
+  /// Default English instruction text.
   final String instruction;
 
-  /// status.
+  /// Current status.
   final ChallengeStepStatus status;
 
-  /// started at.
+  /// When the step became in-progress.
   final DateTime? startedAt;
 
-  /// completed at.
+  /// When the step finished.
   final DateTime? completedAt;
 
-  /// timeout.
+  /// Per-step timeout.
   final Duration timeout;
 
-  /// retry count.
+  /// Automatic retry count.
   final int retryCount;
 
-  /// failure reason.
+  /// Failure reason when failed.
   final ChallengeFailureReason failureReason;
+
+  /// Optional face-center target zones for [FaceActionType.followTargetPath].
+  final List<TargetZone>? targetZones;
 
   /// Returns a copy with selectively overridden fields.
   FaceChallengeStep copyWith({
@@ -74,6 +79,7 @@ class FaceChallengeStep extends Equatable {
     Duration? timeout,
     int? retryCount,
     ChallengeFailureReason? failureReason,
+    List<TargetZone>? targetZones,
   }) {
     return FaceChallengeStep(
       id: id ?? this.id,
@@ -85,6 +91,7 @@ class FaceChallengeStep extends Equatable {
       timeout: timeout ?? this.timeout,
       retryCount: retryCount ?? this.retryCount,
       failureReason: failureReason ?? this.failureReason,
+      targetZones: targetZones ?? this.targetZones,
     );
   }
 
@@ -99,5 +106,6 @@ class FaceChallengeStep extends Equatable {
         timeout,
         retryCount,
         failureReason,
+        targetZones,
       ];
 }

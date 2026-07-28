@@ -51,6 +51,30 @@ class GuidanceCatalog {
         return _faceOutOfFrame;
       case GuidanceCode.noFaceDetected:
         return _noFaceDetected;
+      case GuidanceCode.smile:
+        return _smile;
+      case GuidanceCode.followTheDot:
+        return _followTheDot;
+      case GuidanceCode.moveFaceToTarget:
+        return _moveFaceToTarget;
+      case GuidanceCode.holdInsideTarget:
+        return _holdInsideTarget;
+      case GuidanceCode.targetCompleted:
+        return _targetCompleted;
+      case GuidanceCode.targetMissed:
+        return _targetMissed;
+      case GuidanceCode.faceLostDuringTargetChallenge:
+        return _faceLostDuringTargetChallenge;
+      case GuidanceCode.targetChallengeTimeout:
+        return _targetChallengeTimeout;
+      case GuidanceCode.moveSlightlyLeft:
+        return _moveSlightlyLeft;
+      case GuidanceCode.moveSlightlyRight:
+        return _moveSlightlyRight;
+      case GuidanceCode.moveSlightlyUp:
+        return _moveSlightlyUp;
+      case GuidanceCode.moveSlightlyDown:
+        return _moveSlightlyDown;
     }
   }
 
@@ -218,5 +242,131 @@ class GuidanceCatalog {
     semanticLabel: 'No face detected',
     announceForAccessibility: true,
     highContrastLabel: 'No face',
+  );
+
+  static const GuidanceMessage _smile = GuidanceMessage(
+    code: GuidanceCode.smile,
+    messageKey: '$keyPrefix.smile',
+    severity: GuidanceSeverity.info,
+    defaultEnglishText: 'Smile.',
+    canUseHapticFeedback: true,
+    semanticLabel: 'Smile',
+    announceForAccessibility: true,
+    highContrastLabel: 'Smile',
+  );
+
+  static const GuidanceMessage _followTheDot = GuidanceMessage(
+    code: GuidanceCode.followTheDot,
+    messageKey: '$keyPrefix.follow_the_dot',
+    severity: GuidanceSeverity.info,
+    defaultEnglishText: 'Follow the target with your face.',
+    canUseHapticFeedback: true,
+    semanticLabel: 'Follow the target',
+    announceForAccessibility: true,
+    highContrastLabel: 'Follow',
+  );
+
+  static const GuidanceMessage _moveFaceToTarget = GuidanceMessage(
+    code: GuidanceCode.moveFaceToTarget,
+    messageKey: '$keyPrefix.move_face_to_target',
+    severity: GuidanceSeverity.info,
+    defaultEnglishText: 'Move your face toward the dot.',
+    canUseHapticFeedback: true,
+    semanticLabel: 'Move face toward target',
+    announceForAccessibility: true,
+    highContrastLabel: 'To target',
+  );
+
+  static const GuidanceMessage _holdInsideTarget = GuidanceMessage(
+    code: GuidanceCode.holdInsideTarget,
+    messageKey: '$keyPrefix.hold_inside_target',
+    severity: GuidanceSeverity.info,
+    defaultEnglishText: 'Hold still inside the target.',
+    semanticLabel: 'Hold inside target',
+    announceForAccessibility: true,
+    highContrastLabel: 'Hold',
+  );
+
+  static const GuidanceMessage _targetCompleted = GuidanceMessage(
+    code: GuidanceCode.targetCompleted,
+    messageKey: '$keyPrefix.target_completed',
+    severity: GuidanceSeverity.success,
+    defaultEnglishText: 'Target completed.',
+    canUseHapticFeedback: true,
+    semanticLabel: 'Target completed',
+    announceForAccessibility: true,
+    highContrastLabel: 'Done',
+  );
+
+  static const GuidanceMessage _targetMissed = GuidanceMessage(
+    code: GuidanceCode.targetMissed,
+    messageKey: '$keyPrefix.target_missed',
+    severity: GuidanceSeverity.warning,
+    defaultEnglishText: 'Target missed. Try again.',
+    canUseHapticFeedback: true,
+    semanticLabel: 'Target missed',
+    announceForAccessibility: true,
+    highContrastLabel: 'Missed',
+  );
+
+  static const GuidanceMessage _faceLostDuringTargetChallenge = GuidanceMessage(
+    code: GuidanceCode.faceLostDuringTargetChallenge,
+    messageKey: '$keyPrefix.face_lost_during_target_challenge',
+    severity: GuidanceSeverity.warning,
+    defaultEnglishText: 'Face lost — center your face again.',
+    semanticLabel: 'Face lost during target challenge',
+    announceForAccessibility: true,
+    highContrastLabel: 'Face lost',
+  );
+
+  static const GuidanceMessage _targetChallengeTimeout = GuidanceMessage(
+    code: GuidanceCode.targetChallengeTimeout,
+    messageKey: '$keyPrefix.target_challenge_timeout',
+    severity: GuidanceSeverity.error,
+    defaultEnglishText: 'Target challenge timed out.',
+    canUseHapticFeedback: true,
+    semanticLabel: 'Target challenge timeout',
+    announceForAccessibility: true,
+    highContrastLabel: 'Timeout',
+  );
+
+  static const GuidanceMessage _moveSlightlyLeft = GuidanceMessage(
+    code: GuidanceCode.moveSlightlyLeft,
+    messageKey: '$keyPrefix.move_slightly_left',
+    severity: GuidanceSeverity.info,
+    defaultEnglishText: 'Move slightly left.',
+    semanticLabel: 'Move slightly left',
+    announceForAccessibility: true,
+    highContrastLabel: 'Left',
+  );
+
+  static const GuidanceMessage _moveSlightlyRight = GuidanceMessage(
+    code: GuidanceCode.moveSlightlyRight,
+    messageKey: '$keyPrefix.move_slightly_right',
+    severity: GuidanceSeverity.info,
+    defaultEnglishText: 'Move slightly right.',
+    semanticLabel: 'Move slightly right',
+    announceForAccessibility: true,
+    highContrastLabel: 'Right',
+  );
+
+  static const GuidanceMessage _moveSlightlyUp = GuidanceMessage(
+    code: GuidanceCode.moveSlightlyUp,
+    messageKey: '$keyPrefix.move_slightly_up',
+    severity: GuidanceSeverity.info,
+    defaultEnglishText: 'Move slightly up.',
+    semanticLabel: 'Move slightly up',
+    announceForAccessibility: true,
+    highContrastLabel: 'Up',
+  );
+
+  static const GuidanceMessage _moveSlightlyDown = GuidanceMessage(
+    code: GuidanceCode.moveSlightlyDown,
+    messageKey: '$keyPrefix.move_slightly_down',
+    severity: GuidanceSeverity.info,
+    defaultEnglishText: 'Move slightly down.',
+    semanticLabel: 'Move slightly down',
+    announceForAccessibility: true,
+    highContrastLabel: 'Down',
   );
 }
