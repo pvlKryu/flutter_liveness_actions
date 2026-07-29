@@ -103,7 +103,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       subtitle: 'Shuffled sequence with nonce',
                       color: Colors.deepOrange,
                       onTap: () => Navigator.pushNamed(
-                          context, '/live-challenge-random'),
+                        context,
+                        '/live-challenge-random',
+                      ),
                     ),
                     _DemoCard(
                       animation: _stagger,
@@ -159,14 +161,19 @@ class _DemoCard extends StatelessWidget {
     final delay = (index * 0.12).clamp(0.0, 0.6);
     final itemAnimation = CurvedAnimation(
       parent: animation,
-      curve: Interval(delay, (delay + 0.4).clamp(0.0, 1.0),
-          curve: Curves.easeOutCubic),
+      curve: Interval(
+        delay,
+        (delay + 0.4).clamp(0.0, 1.0),
+        curve: Curves.easeOutCubic,
+      ),
     );
     return FadeTransition(
       opacity: itemAnimation,
       child: SlideTransition(
-        position: Tween(begin: const Offset(0, 0.15), end: Offset.zero)
-            .animate(itemAnimation),
+        position: Tween(
+          begin: const Offset(0, 0.15),
+          end: Offset.zero,
+        ).animate(itemAnimation),
         child: Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: Material(
@@ -205,9 +212,9 @@ class _DemoCard extends StatelessWidget {
                             subtitle,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],

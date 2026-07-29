@@ -64,8 +64,9 @@ class _ChallengeDemoScreenState extends State<ChallengeDemoScreen>
       _currentGuidance = null;
       return;
     }
-    _currentGuidance =
-        const GuidanceMessageBuilder().forChallengeStep(step).first;
+    _currentGuidance = const GuidanceMessageBuilder()
+        .forChallengeStep(step)
+        .first;
   }
 
   void _advance() {
@@ -133,8 +134,11 @@ class _ChallengeDemoScreenState extends State<ChallengeDemoScreen>
                   children: <Widget>[
                     Row(
                       children: <Widget>[
-                        Icon(Icons.science_outlined,
-                            size: 20, color: theme.colorScheme.primary),
+                        Icon(
+                          Icons.science_outlined,
+                          size: 20,
+                          color: theme.colorScheme.primary,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'State machine test',
@@ -203,15 +207,18 @@ class _ChallengeDemoScreenState extends State<ChallengeDemoScreen>
                       duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: passed
                             ? Colors.green.withValues(alpha: 0.08)
                             : active
-                                ? theme.colorScheme.primaryContainer
-                                    .withValues(alpha: 0.3)
-                                : theme.colorScheme.surfaceContainerHighest
-                                    .withValues(alpha: 0.5),
+                            ? theme.colorScheme.primaryContainer.withValues(
+                                alpha: 0.3,
+                              )
+                            : theme.colorScheme.surfaceContainerHighest
+                                  .withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: active
                             ? Border.all(color: theme.colorScheme.primary)
@@ -220,22 +227,31 @@ class _ChallengeDemoScreenState extends State<ChallengeDemoScreen>
                       child: Row(
                         children: <Widget>[
                           if (passed)
-                            const Icon(Icons.check_circle,
-                                size: 20, color: Colors.green)
+                            const Icon(
+                              Icons.check_circle,
+                              size: 20,
+                              color: Colors.green,
+                            )
                           else if (active)
-                            Icon(Icons.radio_button_on,
-                                size: 20, color: theme.colorScheme.primary)
+                            Icon(
+                              Icons.radio_button_on,
+                              size: 20,
+                              color: theme.colorScheme.primary,
+                            )
                           else
-                            Icon(Icons.radio_button_off,
-                                size: 20,
-                                color: theme.colorScheme.onSurfaceVariant),
+                            Icon(
+                              Icons.radio_button_off,
+                              size: 20,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               s.type.name,
                               style: TextStyle(
-                                fontWeight:
-                                    active ? FontWeight.w600 : FontWeight.w400,
+                                fontWeight: active
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
                               ),
                             ),
                           ),
@@ -292,8 +308,11 @@ class _ChallengeDemoScreenState extends State<ChallengeDemoScreen>
               const SizedBox(height: 12),
               FilledButton.tonal(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/audit',
-                      arguments: _auditBuilder);
+                  Navigator.pushNamed(
+                    context,
+                    '/audit',
+                    arguments: _auditBuilder,
+                  );
                 },
                 style: FilledButton.styleFrom(
                   shape: RoundedRectangleBorder(

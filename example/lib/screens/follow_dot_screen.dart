@@ -144,8 +144,10 @@ class _FollowDotScreenState extends State<FollowDotScreen>
             if (currentStep?.type == FaceActionType.followTargetPath ||
                 completed)
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 4,
+                ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
@@ -315,8 +317,9 @@ class _SmoothTargetDot extends StatelessWidget {
       builder: (context, _) {
         return LayoutBuilder(
           builder: (context, constraints) {
-            final t =
-                Curves.easeInOutCubic.transform(move.value.clamp(0.0, 1.0));
+            final t = Curves.easeInOutCubic.transform(
+              move.value.clamp(0.0, 1.0),
+            );
             final norm = Offset.lerp(from, to, t) ?? to;
             final x = norm.dx * constraints.maxWidth;
             final y = norm.dy * constraints.maxHeight;
@@ -433,7 +436,8 @@ class _ConfettiPainter extends CustomPainter {
 
     for (final p in _particles) {
       final x = origin.dx + p.vx * progress * size.width * 0.55;
-      final y = origin.dy +
+      final y =
+          origin.dy +
           p.vy * progress * size.height * 0.55 +
           gravity * size.height * 0.35;
       final paint = Paint()..color = p.color.withValues(alpha: fade);

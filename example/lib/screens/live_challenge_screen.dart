@@ -153,8 +153,9 @@ class _LiveChallengeScreenState extends State<LiveChallengeScreen>
                         CameraPreview(_session.cameraController!)
                       else if (_session.isInitializing)
                         const Center(
-                          child:
-                              CircularProgressIndicator(color: Colors.white70),
+                          child: CircularProgressIndicator(
+                            color: Colors.white70,
+                          ),
                         )
                       else
                         Center(
@@ -166,8 +167,9 @@ class _LiveChallengeScreenState extends State<LiveChallengeScreen>
                         ),
                       // Oval guide
                       IgnorePointer(
-                        child:
-                            CustomPaint(painter: _OvalGuidePainter(progress)),
+                        child: CustomPaint(
+                          painter: _OvalGuidePainter(progress),
+                        ),
                       ),
                       // Success overlay
                       if (completed)
@@ -227,13 +229,13 @@ class _LiveChallengeScreenState extends State<LiveChallengeScreen>
                         child: FilledButton(
                           onPressed: completed
                               ? () => Navigator.pushNamed(
-                                    context,
-                                    '/audit',
-                                    arguments:
-                                        _session.actionSession.buildAuditEvent(
-                                      completedAt: DateTime.now(),
-                                    ),
-                                  )
+                                  context,
+                                  '/audit',
+                                  arguments: _session.actionSession
+                                      .buildAuditEvent(
+                                        completedAt: DateTime.now(),
+                                      ),
+                                )
                               : null,
                           style: FilledButton.styleFrom(
                             backgroundColor: completed
@@ -314,8 +316,11 @@ class _StepChip extends StatelessWidget {
             ),
           Text(
             step.type.name,
-            style:
-                TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              color: fg,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

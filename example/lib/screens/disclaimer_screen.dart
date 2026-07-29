@@ -21,8 +21,10 @@ class _DisclaimerScreenState extends State<DisclaimerScreen>
       duration: const Duration(milliseconds: 800),
     );
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _slideUp = Tween(begin: const Offset(0, 0.15), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _slideUp = Tween(
+      begin: const Offset(0, 0.15),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
   }
 

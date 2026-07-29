@@ -118,8 +118,9 @@ class _RealtimeDetectionScreenState extends State<RealtimeDetectionScreen>
                         CameraPreview(session.cameraController!)
                       else if (session != null && session.isInitializing)
                         const Center(
-                          child:
-                              CircularProgressIndicator(color: Colors.white70),
+                          child: CircularProgressIndicator(
+                            color: Colors.white70,
+                          ),
                         )
                       else
                         Center(
@@ -142,7 +143,9 @@ class _RealtimeDetectionScreenState extends State<RealtimeDetectionScreen>
                           right: 8,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.black87,
                               borderRadius: BorderRadius.circular(8),
@@ -167,8 +170,10 @@ class _RealtimeDetectionScreenState extends State<RealtimeDetectionScreen>
             // Signal bar
             if (signal != null)
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 child: _SignalBar(signal: signal),
               ),
 
@@ -212,17 +217,23 @@ class _HudOverlay extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-                'L eye: ${frame.leftEyeOpenProbability?.toStringAsFixed(3) ?? '---'}'),
+              'L eye: ${frame.leftEyeOpenProbability?.toStringAsFixed(3) ?? '---'}',
+            ),
             Text(
-                'R eye: ${frame.rightEyeOpenProbability?.toStringAsFixed(3) ?? '---'}'),
+              'R eye: ${frame.rightEyeOpenProbability?.toStringAsFixed(3) ?? '---'}',
+            ),
             Text(
-                'Smile: ${frame.smilingProbability?.toStringAsFixed(3) ?? '---'}'),
+              'Smile: ${frame.smilingProbability?.toStringAsFixed(3) ?? '---'}',
+            ),
             Text(
-                'Yaw:   ${frame.headEulerAngleY?.toStringAsFixed(1) ?? '---'}°'),
+              'Yaw:   ${frame.headEulerAngleY?.toStringAsFixed(1) ?? '---'}°',
+            ),
             Text(
-                'Pitch: ${frame.headEulerAngleX?.toStringAsFixed(1) ?? '---'}°'),
+              'Pitch: ${frame.headEulerAngleX?.toStringAsFixed(1) ?? '---'}°',
+            ),
             Text(
-                'Roll:  ${frame.headEulerAngleZ?.toStringAsFixed(1) ?? '---'}°'),
+              'Roll:  ${frame.headEulerAngleZ?.toStringAsFixed(1) ?? '---'}°',
+            ),
             Text('Faces: ${frame.faceCount}'),
             if (signal != null) ...[
               const Divider(color: Colors.white24, height: 8),
@@ -239,9 +250,7 @@ class _HudOverlay extends StatelessWidget {
   Widget _signalLine(String name, bool active) {
     return Text(
       '$name: ${active ? "■" : "□"}',
-      style: TextStyle(
-        color: active ? Colors.greenAccent : Colors.white38,
-      ),
+      style: TextStyle(color: active ? Colors.greenAccent : Colors.white38),
     );
   }
 }
@@ -337,8 +346,10 @@ class _SettingsPanel extends StatelessWidget {
                   onTap: () => onProfileChanged(p),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: selected
                           ? Colors.greenAccent.withValues(alpha: 0.2)
@@ -374,13 +385,15 @@ class _SettingsPanel extends StatelessWidget {
               _configRow('Target FPS', '${config!.targetProcessingFps}'),
               _configRow('Frame skip', '${config!.frameSkipRatio}'),
               _configRow('Buffer size', '${config!.maxRollingBufferSize}'),
-              _configRow('Quality checks',
-                  config!.enableExtendedQualityChecks ? 'ON' : 'OFF'),
+              _configRow(
+                'Quality checks',
+                config!.enableExtendedQualityChecks ? 'ON' : 'OFF',
+              ),
               _configRow(
                 'Resolution',
                 config!.recommendedCameraResolution != null
                     ? '${config!.recommendedCameraResolution!.width.toInt()}×'
-                        '${config!.recommendedCameraResolution!.height.toInt()}'
+                          '${config!.recommendedCameraResolution!.height.toInt()}'
                     : '—',
               ),
             ],

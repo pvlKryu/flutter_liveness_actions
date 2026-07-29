@@ -116,8 +116,9 @@ class _CameraDemoScreenState extends State<CameraDemoScreen>
                         CameraPreview(_session.cameraController!)
                       else if (_session.isInitializing)
                         const Center(
-                          child:
-                              CircularProgressIndicator(color: Colors.white70),
+                          child: CircularProgressIndicator(
+                            color: Colors.white70,
+                          ),
                         )
                       else
                         Center(
@@ -152,19 +153,25 @@ class _CameraDemoScreenState extends State<CameraDemoScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Text(
-                                      'L eye: ${frame.leftEyeOpenProbability?.toStringAsFixed(3) ?? 'null'}'),
+                                    'L eye: ${frame.leftEyeOpenProbability?.toStringAsFixed(3) ?? 'null'}',
+                                  ),
                                   Text(
-                                      'R eye: ${frame.rightEyeOpenProbability?.toStringAsFixed(3) ?? 'null'}'),
+                                    'R eye: ${frame.rightEyeOpenProbability?.toStringAsFixed(3) ?? 'null'}',
+                                  ),
                                   Text(
-                                      'Smile: ${frame.smilingProbability?.toStringAsFixed(3) ?? 'null'}'),
+                                    'Smile: ${frame.smilingProbability?.toStringAsFixed(3) ?? 'null'}',
+                                  ),
                                   Text(
-                                      'Yaw: ${frame.headEulerAngleY?.toStringAsFixed(1) ?? 'null'}'),
+                                    'Yaw: ${frame.headEulerAngleY?.toStringAsFixed(1) ?? 'null'}',
+                                  ),
                                   Text(
-                                      'Pitch: ${frame.headEulerAngleX?.toStringAsFixed(1) ?? 'null'}'),
+                                    'Pitch: ${frame.headEulerAngleX?.toStringAsFixed(1) ?? 'null'}',
+                                  ),
                                   Text('Faces: ${frame.faceCount}'),
                                   if (signal != null)
                                     Text(
-                                        'Blink: ${signal.blinkDetected ? "YES" : "no"}'),
+                                      'Blink: ${signal.blinkDetected ? "YES" : "no"}',
+                                    ),
                                 ],
                               ),
                             ),
