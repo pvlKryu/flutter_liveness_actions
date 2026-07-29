@@ -28,7 +28,7 @@ jobs:
       - name: Verify formatting
         run: dart format --set-exit-if-changed .
       - name: Analyze package
-        run: flutter analyze
+        run: flutter analyze lib test
       - name: Test package
         run: flutter test
       - name: Install example dependencies

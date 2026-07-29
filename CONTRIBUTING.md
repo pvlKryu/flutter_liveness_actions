@@ -12,7 +12,13 @@ This package targets **Android and iOS** mobile Flutter apps. Please avoid addin
 - Do not add raw image storage or upload to core APIs.
 - Avoid identity verification, KYC, AML, or fraud-prevention claims in code and docs.
 - Add unit tests for behavioral changes.
-- Format with the **Flutter SDK** Dart (`dart format .` after `flutter` is on PATH), then run `flutter analyze` and `flutter test` before opening a PR.
+- Before opening a PR, run the local CI mirror (same steps as GitHub Actions):
+
+  ```bash
+  ./tool/ci_local.sh
+  ```
+
+  It formats with the **Flutter SDK** Dart (not Homebrew `dart`), analyzes package + example, runs tests, and does `pub publish --dry-run`.
 - Prefer additive changes; see [doc/STABILITY.md](doc/STABILITY.md) for the 1.x SemVer policy.
 
 ## Pull requests

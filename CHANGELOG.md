@@ -1,3 +1,8 @@
+## 1.3.2
+
+- Added `tool/ci_local.sh` to mirror GitHub Actions checks locally before push.
+- CI package analyze now targets `lib` and `test` only so example is analyzed after its own `pub get`.
+
 ## 1.3.1
 
 - Documentation polish: removed leftover 0.x wording from README, refreshed `doc/API.md` for the `1.x` line, and added example app screenshots under `doc/assets/screenshots/`.
