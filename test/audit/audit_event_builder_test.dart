@@ -9,7 +9,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 'demo-session-123',
         sequenceId: 'sequence-001',
-        packageVersion: '0.1.0',
+        packageVersion: packageVersion,
       );
       final event = builder.build(
         challengeState: FaceChallengeState.initial(
@@ -28,7 +28,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 's1',
         sequenceId: 'seq1',
-        packageVersion: '0.1.0',
+        packageVersion: packageVersion,
       );
       final event = builder.build(
         challengeState: FaceChallengeState.initial(
@@ -46,7 +46,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 's1',
         sequenceId: 'seq1',
-        packageVersion: '1.2.0',
+        packageVersion: packageVersion,
       );
       final event = builder.build(
         challengeState: FaceChallengeState.initial(
@@ -77,7 +77,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 's1',
         sequenceId: 'seq1',
-        packageVersion: '1.2.0',
+        packageVersion: packageVersion,
         privacyGuard: const PrivacyGuard(
           config: PrivacyConfig(
             allowRawImageStorage: true,
@@ -103,7 +103,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 's1',
         sequenceId: 'seq1',
-        packageVersion: '0.1.0',
+        packageVersion: packageVersion,
       );
       final event = builder.build(
         challengeState: FaceChallengeState.initial(
@@ -122,7 +122,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 's1',
         sequenceId: 'seq1',
-        packageVersion: '0.1.0',
+        packageVersion: packageVersion,
       );
       final event = builder.build(
         challengeState: FaceChallengeState.initial(
@@ -139,7 +139,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 's1',
         sequenceId: 'seq1',
-        packageVersion: '0.1.0',
+        packageVersion: packageVersion,
       );
       final event = builder.build(
         challengeState: FaceChallengeState.initial(

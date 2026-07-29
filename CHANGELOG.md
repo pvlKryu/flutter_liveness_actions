@@ -1,6 +1,11 @@
+## 1.2.2
+
+- Maintenance release with synchronized version metadata across pubspec, `packageVersion`, README, and CHANGELOG.
+
 ## 1.2.1
 
 - Fixed Dart formatting for `MultiFaceSecurityGate` so CI format checks pass.
+- Synchronized package version across `pubspec.yaml`, `packageVersion`, README, and CHANGELOG; added a version-sync test.
 
 ## 1.2.0
 

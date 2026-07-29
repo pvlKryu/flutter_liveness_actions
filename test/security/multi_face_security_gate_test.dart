@@ -37,7 +37,7 @@ void main() {
       final builder = AuditEventBuilder(
         sessionId: 's1',
         sequenceId: controller.sequence.sequenceId,
-        packageVersion: '1.2.0',
+        packageVersion: packageVersion,
       );
       final events = <FaceChallengeEventType>[];
       controller.events.listen((e) => events.add(e.type));
