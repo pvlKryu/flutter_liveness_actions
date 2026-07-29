@@ -83,7 +83,7 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
             _capability.recommendedAnalysisResolution == null
                 ? '-'
                 : '${_capability.recommendedAnalysisResolution!.width.toInt()}x'
-                      '${_capability.recommendedAnalysisResolution!.height.toInt()}',
+                    '${_capability.recommendedAnalysisResolution!.height.toInt()}',
           ),
           const SizedBox(height: 16),
           const Text(

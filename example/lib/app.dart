@@ -6,7 +6,9 @@ import 'screens/camera_permission_screen.dart';
 import 'screens/challenge_demo_screen.dart';
 import 'screens/diagnostics_screen.dart';
 import 'screens/disclaimer_screen.dart';
+import 'screens/follow_dot_screen.dart';
 import 'screens/live_challenge_screen.dart';
+import 'screens/realtime_detection_screen.dart';
 import 'screens/welcome_screen.dart';
 
 class ExampleApp extends StatelessWidget {
@@ -15,10 +17,33 @@ class ExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Liveness Actions Example',
+      title: 'Liveness Actions',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: Brightness.light,
+        ),
         useMaterial3: true,
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: <TargetPlatform, PageTransitionsBuilder>{
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          },
+        ),
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: <TargetPlatform, PageTransitionsBuilder>{
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          },
+        ),
       ),
       initialRoute: '/',
       routes: <String, WidgetBuilder>{
@@ -31,6 +56,8 @@ class ExampleApp extends StatelessWidget {
         '/live-challenge': (_) => const LiveChallengeScreen(),
         '/live-challenge-random': (_) =>
             const LiveChallengeScreen(randomized: true),
+        '/follow-dot': (_) => const FollowDotScreen(),
+        '/realtime': (_) => const RealtimeDetectionScreen(),
         '/audit': (_) => const AuditEventScreen(),
         '/diagnostics': (_) => const DiagnosticsScreen(),
       },

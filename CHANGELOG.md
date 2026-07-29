@@ -1,3 +1,11 @@
+## 1.3.0
+
+- Improved blink detection: faster eye smoothing, longer blink window, and a short latch so challenge steps do not miss single-frame blink pulses under adaptive FPS.
+- Challenge flow no longer blocks non-`centerFace` steps behind a strict quality gate, so blink/turn/hold can complete with natural head motion.
+- `ChallengeSequenceFactory` now attaches target zones when generating `followTargetPath` steps (`enableTargetPath` / `randomizeTargetPath`).
+- Example app redesign: Material 3 theme, animated welcome/disclaimer flows, realtime detection + settings panel, follow-the-dot with smooth motion and confetti finale, and more reliable live-challenge camera handoff.
+- Example iOS Podfile enables camera permission macros and documents the 15.5+ deployment target for ML Kit.
+
 ## 1.2.2
 
 - Maintenance release with synchronized version metadata across pubspec, `packageVersion`, README, and CHANGELOG.

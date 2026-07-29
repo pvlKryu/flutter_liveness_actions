@@ -4,7 +4,7 @@ class FaceActionConfig {
   const FaceActionConfig({
     this.eyeOpenThreshold = 0.65,
     this.eyeClosedThreshold = 0.30,
-    this.maxBlinkDuration = const Duration(milliseconds: 1200),
+    this.maxBlinkDuration = const Duration(milliseconds: 2000),
     this.minClosedFrames = 1,
     this.minOpenFramesAfter = 1,
     this.yawLeftThreshold = -18,

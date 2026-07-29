@@ -5,6 +5,8 @@ import '../models/challenge_sequence.dart';
 import '../models/challenge_step.dart';
 import '../models/face_action_type.dart';
 import '../guidance/guidance_catalog.dart';
+import '../target/target_path_factory.dart';
+import '../target/target_zone.dart';
 import 'default_challenges.dart';
 
 /// Builds default or randomized challenge sequences.
@@ -36,7 +38,12 @@ class ChallengeSequenceFactory {
               type: entry.value,
               instruction: GuidanceCatalog.instructionFor(entry.value),
               status: ChallengeStepStatus.pending,
-              timeout: config.stepTimeout,
+              timeout: entry.value == FaceActionType.followTargetPath
+                  ? const Duration(seconds: 40)
+                  : config.stepTimeout,
+              targetZones: entry.value == FaceActionType.followTargetPath
+                  ? _generateTargetZones(config, seed)
+                  : null,
             ),
           )
           .toList(growable: false),
@@ -72,6 +79,20 @@ class ChallengeSequenceFactory {
       selected.add(step);
     }
     return selected;
+  }
+
+  List<TargetZone> _generateTargetZones(FaceChallengeConfig config, int seed) {
+    const factory = TargetPathFactory();
+    if (config.useLowEndFriendlyTargets) {
+      return factory.lowEndFriendly();
+    }
+    if (config.randomizeTargetPath) {
+      return factory.randomized(
+        seed: config.targetSeed ?? seed,
+        maxSteps: config.maxTargetSteps,
+      );
+    }
+    return factory.simpleCross();
   }
 
   String _nonceFor(int seed, Random random) {

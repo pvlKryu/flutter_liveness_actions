@@ -72,7 +72,7 @@ void main() {
       final detected = detector.update(
         leftEyeOpenProbability: 0.9,
         rightEyeOpenProbability: 0.9,
-        timestamp: baseTime.add(const Duration(milliseconds: 1500)),
+        timestamp: baseTime.add(const Duration(milliseconds: 2500)),
       );
       expect(detected, isFalse);
     });
@@ -101,6 +101,43 @@ void main() {
         timestamp: baseTime.add(const Duration(milliseconds: 100)),
       );
       expect(detected, isTrue);
+    });
+
+    test('latches blinkDetected across nearby frames', () {
+      detector.update(
+        leftEyeOpenProbability: 0.9,
+        rightEyeOpenProbability: 0.9,
+        timestamp: baseTime,
+      );
+      detector.update(
+        leftEyeOpenProbability: 0.05,
+        rightEyeOpenProbability: 0.05,
+        timestamp: baseTime.add(const Duration(milliseconds: 50)),
+      );
+      expect(
+        detector.update(
+          leftEyeOpenProbability: 0.9,
+          rightEyeOpenProbability: 0.9,
+          timestamp: baseTime.add(const Duration(milliseconds: 100)),
+        ),
+        isTrue,
+      );
+      expect(
+        detector.update(
+          leftEyeOpenProbability: 0.9,
+          rightEyeOpenProbability: 0.9,
+          timestamp: baseTime.add(const Duration(milliseconds: 250)),
+        ),
+        isTrue,
+      );
+      expect(
+        detector.update(
+          leftEyeOpenProbability: 0.9,
+          rightEyeOpenProbability: 0.9,
+          timestamp: baseTime.add(const Duration(milliseconds: 700)),
+        ),
+        isFalse,
+      );
     });
   });
 }

@@ -18,14 +18,13 @@ class CameraLivenessSession extends ChangeNotifier {
     bool enableChallenge = false,
     FaceChallengeConfig challengeConfig = const FaceChallengeConfig(),
     String sessionId = 'camera-demo',
-  }) : _action =
-           actionSession ??
-           LivenessActionSession(
-             sessionId: sessionId,
-             enableChallenge: enableChallenge,
-             challengeConfig: challengeConfig,
-             performanceConfig: initialConfig ?? PerformanceConfig.balanced(),
-           );
+  }) : _action = actionSession ??
+            LivenessActionSession(
+              sessionId: sessionId,
+              enableChallenge: enableChallenge,
+              challengeConfig: challengeConfig,
+              performanceConfig: initialConfig ?? PerformanceConfig.balanced(),
+            );
 
   final LivenessActionSession _action;
   final MlKitFaceAdapter _adapter = const MlKitFaceAdapter();
@@ -109,7 +108,7 @@ class CameraLivenessSession extends ChangeNotifier {
         options: FaceDetectorOptions(
           enableClassification: true,
           enableTracking: true,
-          performanceMode: FaceDetectorMode.fast,
+          performanceMode: FaceDetectorMode.accurate,
         ),
       );
 

@@ -100,13 +100,20 @@ class _AccessibleGuidanceBannerState extends State<AccessibleGuidanceBanner> {
   }
 
   Color _backgroundFor(GuidanceSeverity severity, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     switch (severity) {
       case GuidanceSeverity.error:
-        return Colors.red.shade50;
+        return isDark
+            ? Colors.red.shade900.withValues(alpha: 0.3)
+            : Colors.red.shade50;
       case GuidanceSeverity.warning:
-        return Colors.orange.shade50;
+        return isDark
+            ? Colors.orange.shade900.withValues(alpha: 0.3)
+            : Colors.orange.shade50;
       case GuidanceSeverity.success:
-        return Colors.green.shade50;
+        return isDark
+            ? Colors.green.shade900.withValues(alpha: 0.3)
+            : Colors.green.shade50;
       case GuidanceSeverity.info:
         return Theme.of(context).colorScheme.surfaceContainerHighest;
     }
@@ -115,13 +122,13 @@ class _AccessibleGuidanceBannerState extends State<AccessibleGuidanceBanner> {
   Color _borderFor(GuidanceSeverity severity) {
     switch (severity) {
       case GuidanceSeverity.error:
-        return Colors.red.shade200;
+        return Colors.red.shade300;
       case GuidanceSeverity.warning:
-        return Colors.orange.shade200;
+        return Colors.orange.shade300;
       case GuidanceSeverity.success:
-        return Colors.green.shade200;
+        return Colors.green.shade300;
       case GuidanceSeverity.info:
-        return Colors.blueGrey.shade200;
+        return Colors.blueGrey.shade300;
     }
   }
 }

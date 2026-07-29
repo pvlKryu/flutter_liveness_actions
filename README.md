@@ -55,7 +55,7 @@ See [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md), [doc/API.md](doc/API.md), and [d
 
 ```yaml
 dependencies:
-  flutter_liveness_actions: ^1.2.2
+  flutter_liveness_actions: ^1.3.0
   google_mlkit_face_detection: ^0.14.0
 ```
 
@@ -247,7 +247,7 @@ final auditBuilder = AuditEventBuilder(
 
 ## Limitations
 
-- Android and iOS only in v1.2.2
+- Android and iOS only in v1.3.0
 - Follow-the-dot is face-center tracking — not eye tracking or gaze estimation
 - Heuristic quality checks (brightness/blur) are limited where noted
 - Not validated for regulated identity use cases
@@ -265,7 +265,8 @@ final auditBuilder = AuditEventBuilder(
 - **1.1.0** — Dynamic target / follow-the-dot challenges + simulator
 - **1.2.0** — Multi-face security gate, face jitter filter, enriched audit
 - **1.2.1** — Formatting fix for publish / CI
-- **1.2.2** — Version metadata sync (current)
+- **1.2.2** — Version metadata sync
+- **1.3.0** — Blink reliability, challenge quality-gate fix, richer example demos (current)
 
 Post-1.0 work focuses on patch/minor improvements, device validation as dependencies evolve, and optional host-app demos — not breaking API churn.
 

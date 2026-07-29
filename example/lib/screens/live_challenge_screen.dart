@@ -5,12 +5,9 @@ import 'package:flutter_liveness_actions/flutter_liveness_actions.dart';
 import '../services/camera_liveness_session.dart';
 import '../widgets/accessible_guidance_banner.dart';
 
-/// Live camera challenge flow using [LivenessActionSession] under the hood.
 class LiveChallengeScreen extends StatefulWidget {
-  /// Creates a live challenge screen.
   const LiveChallengeScreen({super.key, this.randomized = false});
 
-  /// Whether to randomize the challenge sequence.
   final bool randomized;
 
   @override
@@ -18,8 +15,11 @@ class LiveChallengeScreen extends StatefulWidget {
 }
 
 class _LiveChallengeScreenState extends State<LiveChallengeScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   late final CameraLivenessSession _session;
+  late final AnimationController _successController;
+  late final Animation<double> _successScale;
+  bool _showSuccess = false;
 
   @override
   void initState() {
@@ -34,16 +34,29 @@ class _LiveChallengeScreenState extends State<LiveChallengeScreen>
         sequenceIdPrefix: widget.randomized ? 'live-random' : 'live',
         maxSteps: 4,
       ),
-      initialConfig: PerformanceConfig.balanced(),
+      initialConfig: PerformanceConfig.highPerformance(),
     );
     _session.addListener(_onUpdate);
     _session.initialize();
+
+    _successController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _successScale = CurvedAnimation(
+      parent: _successController,
+      curve: Curves.elasticOut,
+    );
   }
 
   void _onUpdate() {
-    if (mounted) {
-      setState(() {});
+    if (!mounted) return;
+    final completed = _session.challenge?.state.completed ?? false;
+    if (completed && !_showSuccess) {
+      _showSuccess = true;
+      _successController.forward();
     }
+    setState(() {});
   }
 
   @override
@@ -56,102 +69,281 @@ class _LiveChallengeScreenState extends State<LiveChallengeScreen>
     WidgetsBinding.instance.removeObserver(this);
     _session.removeListener(_onUpdate);
     _session.close();
+    _successController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final challenge = _session.challenge;
     final state = challenge?.state;
     final guidance = _session.guidanceMessages;
     final completed = state?.completed ?? false;
+    final progress = state?.progress ?? 0.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.randomized ? 'Live randomized challenge' : 'Live challenge',
-        ),
-        actions: <Widget>[
-          IconButton(
-            tooltip: 'Diagnostics',
-            onPressed: () => Navigator.pushNamed(
-              context,
-              '/diagnostics',
-              arguments: _session.diagnostics,
-            ),
-            icon: const Icon(Icons.speed),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: Colors.black,
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: ColoredBox(
-                  color: Colors.black12,
-                  child: _session.isReady
-                      ? CameraPreview(_session.cameraController!)
-                      : Center(
-                          child: _session.isInitializing
-                              ? const CircularProgressIndicator()
-                              : Text(
-                                  _session.error ?? 'Camera unavailable',
-                                  textAlign: TextAlign.center,
-                                ),
-                        ),
+            // Top bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Spacer(),
+                  Text(
+                    widget.randomized ? 'Randomized' : 'Challenge',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    tooltip: 'Diagnostics',
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      '/diagnostics',
+                      arguments: _session.diagnostics,
+                    ),
+                    icon: const Icon(Icons.speed, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+
+            // Progress bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: progress),
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                builder: (context, value, _) => ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: value,
+                    minHeight: 6,
+                    backgroundColor: Colors.white12,
+                    color: completed ? Colors.greenAccent : Colors.white,
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 12),
-            if (guidance.isNotEmpty)
-              AccessibleGuidanceBanner(message: guidance.first),
-            const SizedBox(height: 12),
-            if (challenge != null) ...<Widget>[
-              Text(
-                'Sequence: ${challenge.sequence.sequenceId}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 8),
-              LinearProgressIndicator(value: state?.progress ?? 0),
-              const SizedBox(height: 8),
-              Text(
-                completed
-                    ? 'Challenge completed (demo signals only)'
-                    : 'Step: ${state?.currentStep?.instruction ?? '—'}',
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: challenge.sequence.steps
-                    .map(
-                      (step) => Chip(
-                        label: Text('${step.type.name}: ${step.status.name}'),
+
+            // Camera preview
+            Expanded(
+              flex: 5,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: <Widget>[
+                      if (_session.isReady)
+                        CameraPreview(_session.cameraController!)
+                      else if (_session.isInitializing)
+                        const Center(
+                          child:
+                              CircularProgressIndicator(color: Colors.white70),
+                        )
+                      else
+                        Center(
+                          child: Text(
+                            _session.error ?? 'Camera unavailable',
+                            style: const TextStyle(color: Colors.white70),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      // Oval guide
+                      IgnorePointer(
+                        child:
+                            CustomPaint(painter: _OvalGuidePainter(progress)),
                       ),
-                    )
-                    .toList(growable: false),
+                      // Success overlay
+                      if (completed)
+                        ScaleTransition(
+                          scale: _successScale,
+                          child: Center(
+                            child: Container(
+                              width: 96,
+                              height: 96,
+                              decoration: const BoxDecoration(
+                                color: Colors.greenAccent,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.check_rounded,
+                                size: 56,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ],
-            const Spacer(),
-            FilledButton(
-              onPressed: completed
-                  ? () => Navigator.pushNamed(
-                      context,
-                      '/audit',
-                      arguments: _session.actionSession.buildAuditEvent(
-                        completedAt: DateTime.now(),
+            ),
+
+            // Bottom section
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    if (guidance.isNotEmpty)
+                      AccessibleGuidanceBanner(message: guidance.first),
+                    const SizedBox(height: 12),
+                    if (challenge != null)
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: challenge.sequence.steps
+                                .map((step) => _StepChip(step: step))
+                                .toList(growable: false),
+                          ),
+                        ),
                       ),
-                    )
-                  : null,
-              child: const Text('View audit event'),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 52,
+                      child: AnimatedOpacity(
+                        opacity: completed ? 1.0 : 0.4,
+                        duration: const Duration(milliseconds: 300),
+                        child: FilledButton(
+                          onPressed: completed
+                              ? () => Navigator.pushNamed(
+                                    context,
+                                    '/audit',
+                                    arguments:
+                                        _session.actionSession.buildAuditEvent(
+                                      completedAt: DateTime.now(),
+                                    ),
+                                  )
+                              : null,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: completed
+                                ? Colors.greenAccent
+                                : theme.colorScheme.surfaceContainerHighest,
+                            foregroundColor: Colors.black87,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: const Text(
+                            'View audit event',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+class _StepChip extends StatelessWidget {
+  const _StepChip({required this.step});
+  final FaceChallengeStep step;
+
+  @override
+  Widget build(BuildContext context) {
+    final passed = step.status == ChallengeStepStatus.passed;
+    final inProgress = step.status == ChallengeStepStatus.inProgress;
+    final failed = step.status == ChallengeStepStatus.failed;
+
+    Color bg;
+    Color fg;
+    if (passed) {
+      bg = Colors.greenAccent.withValues(alpha: 0.2);
+      fg = Colors.greenAccent;
+    } else if (inProgress) {
+      bg = Colors.white12;
+      fg = Colors.white;
+    } else if (failed) {
+      bg = Colors.redAccent.withValues(alpha: 0.15);
+      fg = Colors.redAccent;
+    } else {
+      bg = Colors.white.withValues(alpha: 0.05);
+      fg = Colors.white38;
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+        border: inProgress ? Border.all(color: Colors.white38) : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (passed)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(Icons.check_circle, size: 16, color: fg),
+            ),
+          if (failed)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(Icons.cancel, size: 16, color: fg),
+            ),
+          Text(
+            step.type.name,
+            style:
+                TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OvalGuidePainter extends CustomPainter {
+  _OvalGuidePainter(this.progress);
+  final double progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final color = progress >= 1.0
+        ? Colors.greenAccent.withValues(alpha: 0.7)
+        : Colors.white.withValues(alpha: 0.5);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+    final rect = Rect.fromCenter(
+      center: size.center(Offset.zero),
+      width: size.width * 0.62,
+      height: size.height * 0.52,
+    );
+    canvas.drawOval(rect, paint);
+  }
+
+  @override
+  bool shouldRepaint(_OvalGuidePainter old) => old.progress != progress;
 }

@@ -205,15 +205,24 @@ class LivenessActionSession {
       );
     }
 
-    if (_challenge != null &&
-        !_challenge!.isCompromised &&
-        result.quality.isAcceptable) {
-      _auditBuilder.recordQualityGatePassed();
+    if (_challenge != null && !_challenge!.isCompromised) {
       final current = _challenge!.state.currentStep;
-      if (current != null && _usesFrameEvaluation(current)) {
-        _challenge!.processFrame(result.frame, now: frame.timestamp);
-      } else {
-        _challenge!.processSignal(result.signal, now: frame.timestamp);
+      if (current != null) {
+        // Quality gate only blocks the initial centerFace step; once the
+        // challenge is underway, allow signals through so blink/turn detection
+        // isn't suppressed by minor positional jitter.
+        final requireQuality = current.type == FaceActionType.centerFace &&
+            !result.quality.isAcceptable;
+        if (!requireQuality) {
+          if (result.quality.isAcceptable) {
+            _auditBuilder.recordQualityGatePassed();
+          }
+          if (_usesFrameEvaluation(current)) {
+            _challenge!.processFrame(result.frame, now: frame.timestamp);
+          } else {
+            _challenge!.processSignal(result.signal, now: frame.timestamp);
+          }
+        }
       }
     }
 
