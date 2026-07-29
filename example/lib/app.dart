@@ -25,12 +25,6 @@ class ExampleApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         useMaterial3: true,
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: <TargetPlatform, PageTransitionsBuilder>{
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          },
-        ),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -38,12 +32,6 @@ class ExampleApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: <TargetPlatform, PageTransitionsBuilder>{
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          },
-        ),
       ),
       initialRoute: '/',
       routes: <String, WidgetBuilder>{

@@ -53,15 +53,16 @@ See [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md), [doc/API.md](doc/API.md), and [d
 
 ## Screenshots
 
+<!-- Absolute URLs so images render on pub.dev as well as GitHub. -->
 <p align="center">
-  <img src="doc/assets/screenshots/privacy_first.png" width="180" alt="Privacy-first disclaimer" />
-  <img src="doc/assets/screenshots/demo_menu.png" width="180" alt="Demo menu" />
-  <img src="doc/assets/screenshots/realtime_detection.png" width="180" alt="Real-time face signal detection" />
+  <img src="https://raw.githubusercontent.com/pvlKryu/flutter_liveness_actions/main/doc/assets/screenshots/privacy_first.png" width="180" alt="Privacy-first disclaimer" />
+  <img src="https://raw.githubusercontent.com/pvlKryu/flutter_liveness_actions/main/doc/assets/screenshots/demo_menu.png" width="180" alt="Demo menu" />
+  <img src="https://raw.githubusercontent.com/pvlKryu/flutter_liveness_actions/main/doc/assets/screenshots/realtime_detection.png" width="180" alt="Real-time face signal detection" />
 </p>
 
 <p align="center">
-  <img src="doc/assets/screenshots/live_challenge.png" width="180" alt="Live challenge flow" />
-  <img src="doc/assets/screenshots/audit_event.png" width="180" alt="Privacy-safe audit event" />
+  <img src="https://raw.githubusercontent.com/pvlKryu/flutter_liveness_actions/main/doc/assets/screenshots/live_challenge.png" width="180" alt="Live challenge flow" />
+  <img src="https://raw.githubusercontent.com/pvlKryu/flutter_liveness_actions/main/doc/assets/screenshots/audit_event.png" width="180" alt="Privacy-safe audit event" />
 </p>
 
 <p align="center"><sub>Example screenshots use a schematic face placeholder — no real biometric imagery is shown.</sub></p>
@@ -70,7 +71,7 @@ See [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md), [doc/API.md](doc/API.md), and [d
 
 ```yaml
 dependencies:
-  flutter_liveness_actions: ^1.3.2
+  flutter_liveness_actions: ^1.3.4
   google_mlkit_face_detection: ^0.14.0
 ```
 
@@ -262,7 +263,7 @@ final auditBuilder = AuditEventBuilder(
 
 ## Limitations
 
-- Android and iOS only in v1.3.2
+- Android and iOS only in v1.3.4
 - Follow-the-dot is face-center tracking — not eye tracking or gaze estimation
 - Heuristic quality checks (brightness/blur) are limited where noted
 - Not validated for regulated identity use cases
@@ -283,7 +284,9 @@ final auditBuilder = AuditEventBuilder(
 - **1.2.2** — Version metadata sync
 - **1.3.0** — Blink reliability, challenge quality-gate fix, richer example demos
 - **1.3.1** — Docs polish and example screenshots
-- **1.3.2** — Local CI script and package/example analyze split (current)
+- **1.3.2** — Local CI script and package/example analyze split
+- **1.3.3** — pub.dev screenshot URLs and example CI analyze fix
+- **1.3.4** — Richer pub.dev Example tab (`example/example.md`) (current)
 
 Post-1.0 work focuses on patch/minor improvements, device validation as dependencies evolve, and optional host-app demos — not breaking API churn.
 

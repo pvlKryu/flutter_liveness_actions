@@ -4,13 +4,17 @@ Demo host for `flutter_liveness_actions` on **Android and iOS**.
 
 This app is for prototypes and UX exploration. It is **not** an identity verification, KYC, or fraud-prevention product.
 
+> The pub.dev **Example** tab renders [`example.md`](example.md) (priority over `lib/main.dart`).
+
 ## Flows
 
-| Route | Purpose |
+| Demo | Purpose |
 | --- | --- |
+| Real-time detection | Live HUD + performance profile panel |
 | Live camera demo | Preview + derived guidance chips |
-| Live camera challenge | Real camera + `LivenessActionSession` challenge |
-| Live randomized challenge | Seeded randomized sequence |
+| Live challenge | Real camera + `LivenessActionSession` challenge |
+| Follow the dot | Face-center target path challenge |
+| Randomized challenge | Seeded randomized sequence |
 | Simulated challenge | Button-driven signals (no camera) |
 | Audit / diagnostics | Privacy-safe JSON + performance metrics |
 
@@ -22,7 +26,7 @@ flutter pub get
 flutter run
 ```
 
-Grant camera permission when prompted.
+Grant camera permission when prompted. iOS requires deployment target **15.5+**.
 
 ## Notes
 

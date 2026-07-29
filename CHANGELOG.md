@@ -1,3 +1,12 @@
+## 1.3.4
+
+- Improved pub.dev Example tab via `example/example.md` (screenshots, demo map, minimal session snippet).
+
+## 1.3.3
+
+- README screenshots now use absolute GitHub URLs so they render on pub.dev.
+- Example app no longer customizes `pageTransitionsTheme` (avoids CI break on Flutter stable where `CupertinoPageTransitionsBuilder` moved to `cupertino.dart`).
+
 ## 1.3.2
 
 - Added `tool/ci_local.sh` to mirror GitHub Actions checks locally before push.
