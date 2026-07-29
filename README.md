@@ -51,11 +51,26 @@ LivenessActionSnapshot / OnboardingAuditEvent
 
 See [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md), [doc/API.md](doc/API.md), and [doc/STABILITY.md](doc/STABILITY.md).
 
+## Screenshots
+
+<p align="center">
+  <img src="doc/assets/screenshots/privacy_first.png" width="180" alt="Privacy-first disclaimer" />
+  <img src="doc/assets/screenshots/demo_menu.png" width="180" alt="Demo menu" />
+  <img src="doc/assets/screenshots/realtime_detection.png" width="180" alt="Real-time face signal detection" />
+</p>
+
+<p align="center">
+  <img src="doc/assets/screenshots/live_challenge.png" width="180" alt="Live challenge flow" />
+  <img src="doc/assets/screenshots/audit_event.png" width="180" alt="Privacy-safe audit event" />
+</p>
+
+<p align="center"><sub>Example screenshots use a schematic face placeholder — no real biometric imagery is shown.</sub></p>
+
 ## Installation
 
 ```yaml
 dependencies:
-  flutter_liveness_actions: ^1.3.0
+  flutter_liveness_actions: ^1.3.1
   google_mlkit_face_detection: ^0.14.0
 ```
 
@@ -143,7 +158,7 @@ Default sequence: center face → blink once → turn left → turn right → ho
 final fps = FrameProcessingController(config: PerformanceConfig.lowEndDevice());
 ```
 
-In 0.2.0, use `AdaptivePerformanceController` to switch profiles from runtime latency/drop-rate with confirmation hysteresis:
+Use `AdaptivePerformanceController` to switch profiles from runtime latency/drop-rate with confirmation hysteresis:
 
 ```dart
 final adaptive = AdaptivePerformanceController();
@@ -165,7 +180,7 @@ Optimized for a wide range of Android devices, including lower-end phones, subje
 
 `GuidanceMessageBuilder` returns metadata (code, severity, default text, semantic labels, haptic hints) for your UI — no widgets are forced by the package.
 
-In 0.3.0, guidance uses stable `messageKey` values from `GuidanceCatalog` for localization:
+Guidance uses stable `messageKey` values from `GuidanceCatalog` for localization:
 
 ```dart
 final messages = GuidanceMessageBuilder().fromSignal(signal);
@@ -247,7 +262,7 @@ final auditBuilder = AuditEventBuilder(
 
 ## Limitations
 
-- Android and iOS only in v1.3.0
+- Android and iOS only in v1.3.1
 - Follow-the-dot is face-center tracking — not eye tracking or gaze estimation
 - Heuristic quality checks (brightness/blur) are limited where noted
 - Not validated for regulated identity use cases
@@ -266,7 +281,8 @@ final auditBuilder = AuditEventBuilder(
 - **1.2.0** — Multi-face security gate, face jitter filter, enriched audit
 - **1.2.1** — Formatting fix for publish / CI
 - **1.2.2** — Version metadata sync
-- **1.3.0** — Blink reliability, challenge quality-gate fix, richer example demos (current)
+- **1.3.0** — Blink reliability, challenge quality-gate fix, richer example demos
+- **1.3.1** — Docs polish and example screenshots (current)
 
 Post-1.0 work focuses on patch/minor improvements, device validation as dependencies evolve, and optional host-app demos — not breaking API churn.
 

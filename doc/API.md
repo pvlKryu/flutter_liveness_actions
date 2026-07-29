@@ -1,6 +1,6 @@
-# Public API (1.0.0 stable)
+# Public API (1.x stable)
 
-This document describes the **stable** public surface for `1.0.0`.
+This document describes the **stable** public surface for the `1.x` line.
 Breaking changes require a new major version (see [STABILITY.md](STABILITY.md)).
 
 ## Preferred entry points

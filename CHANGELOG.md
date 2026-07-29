@@ -1,3 +1,7 @@
+## 1.3.1
+
+- Documentation polish: removed leftover 0.x wording from README, refreshed `doc/API.md` for the `1.x` line, and added example app screenshots under `doc/assets/screenshots/`.
+
 ## 1.3.0
 
 - Improved blink detection: faster eye smoothing, longer blink window, and a short latch so challenge steps do not miss single-frame blink pulses under adaptive FPS.
