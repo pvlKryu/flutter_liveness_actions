@@ -68,8 +68,7 @@ class MultiFaceSecurityGate {
       violated: violated,
       faceCount: faceCount,
       timestamp: now,
-      violationCode:
-          violated ? SecurityViolationCode.multiFaceDetected : null,
+      violationCode: violated ? SecurityViolationCode.multiFaceDetected : null,
     );
   }
 
