@@ -263,7 +263,8 @@ final auditBuilder = AuditEventBuilder(
 - **1.0.0** — Stable API
 - **1.0.1** — Release-readiness patch (LICENSE, stuck-frame fix, platform camera formats)
 - **1.1.0** — Dynamic target / follow-the-dot challenges + simulator
-- **1.2.0** — Multi-face security gate, face jitter filter, enriched audit (current)
+- **1.2.0** — Multi-face security gate, face jitter filter, enriched audit
+- **1.2.1** — Formatting fix for publish / CI (current)
 
 Post-1.0 work focuses on patch/minor improvements, device validation as dependencies evolve, and optional host-app demos — not breaking API churn.
 

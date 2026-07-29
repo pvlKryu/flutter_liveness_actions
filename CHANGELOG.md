@@ -1,3 +1,7 @@
+## 1.2.1
+
+- Fixed Dart formatting for `MultiFaceSecurityGate` so CI format checks pass.
+
 ## 1.2.0
 
 - Added `MultiFaceSecurityGate` with `SecurityViolationCode.multiFaceDetected` fail-safe that locks `ChallengeFlowController` into a compromised state (no retries).
