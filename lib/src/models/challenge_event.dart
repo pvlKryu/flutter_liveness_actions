@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../security/security_violation_code.dart';
 import 'challenge_failure_reason.dart';
 
 /// face challenge event type.
@@ -21,6 +22,9 @@ enum FaceChallengeEventType {
 
   /// challenge failed.
   challengeFailed,
+
+  /// Challenge locked by a security fail-safe (no retries).
+  challengeCompromised,
 }
 
 /// face challenge event.
@@ -32,6 +36,7 @@ class FaceChallengeEvent extends Equatable {
     this.stepId,
     this.message,
     this.failureReason = ChallengeFailureReason.none,
+    this.securityViolation,
   });
 
   /// type.
@@ -49,8 +54,12 @@ class FaceChallengeEvent extends Equatable {
   /// failure reason.
   final ChallengeFailureReason failureReason;
 
+  /// Optional security violation associated with a compromised challenge.
+  final SecurityViolationCode? securityViolation;
+
   @override
 
   /// props.
-  List<Object?> get props => [type, timestamp, stepId, message, failureReason];
+  List<Object?> get props =>
+      [type, timestamp, stepId, message, failureReason, securityViolation];
 }

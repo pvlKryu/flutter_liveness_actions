@@ -23,6 +23,7 @@ The package core is camera-agnostic. Host apps convert camera frames into ML Kit
 
 | Topic | Recommendation |
 | --- | --- |
+| Minimum iOS | **15.5+** (`google_mlkit_commons` / face detection) |
 | Stream format | Prefer `ImageFormatGroup.bgra8888` (do not force NV21 on iOS) |
 | Rotation | Use the active camera description orientation |
 | Info.plist | `NSCameraUsageDescription` required |

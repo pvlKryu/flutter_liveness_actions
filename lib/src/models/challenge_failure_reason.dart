@@ -15,6 +15,9 @@ enum ChallengeFailureReason {
   /// More than one face was detected.
   multipleFaces,
 
+  /// Session locked by a security fail-safe (e.g. multi-face gate).
+  securityCompromised,
+
   /// User cancelled the challenge.
   userCancelled,
 

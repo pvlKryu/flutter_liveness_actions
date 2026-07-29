@@ -42,6 +42,63 @@ void main() {
       expect(event.privacy['rawImagesStored'], isFalse);
     });
 
+    test('includes performance profile and effective FPS', () {
+      final builder = AuditEventBuilder(
+        sessionId: 's1',
+        sequenceId: 'seq1',
+        packageVersion: '1.2.0',
+      );
+      final event = builder.build(
+        challengeState: FaceChallengeState.initial(
+          DefaultChallenges.defaultSequence().steps,
+        ),
+        faceDetected: true,
+        multipleFacesDetected: false,
+        diagnostics: const LivenessDiagnostics(
+          averageProcessingMs: 50,
+          processedFrames: 10,
+          droppedFrames: 1,
+          targetProcessingFps: 12,
+        ),
+        performanceConfig: PerformanceConfig.lowEndDevice(),
+      );
+      expect(event.performance['profile'], 'lowEndDevice');
+      expect(event.performance['targetProcessingFps'], 8);
+      expect(event.performance['averageProcessingMs'], 50);
+      expect(event.performance['effectiveProcessingFps'], closeTo(20.0, 0.001));
+      expect(
+        event.events.any((e) => e['type'] == 'performanceContext'),
+        isTrue,
+      );
+    });
+
+    test('privacy flags remain immutable even with permissive PrivacyGuard',
+        () {
+      final builder = AuditEventBuilder(
+        sessionId: 's1',
+        sequenceId: 'seq1',
+        packageVersion: '1.2.0',
+        privacyGuard: const PrivacyGuard(
+          config: PrivacyConfig(
+            allowRawImageStorage: true,
+            allowRawImageUpload: true,
+            derivedSignalsOnly: false,
+          ),
+        ),
+      );
+      final event = builder.build(
+        challengeState: FaceChallengeState.initial(
+          DefaultChallenges.defaultSequence().steps,
+        ),
+        faceDetected: true,
+        multipleFacesDetected: false,
+        diagnostics: const LivenessDiagnostics(),
+      );
+      expect(event.privacy['derivedSignalsOnly'], isTrue);
+      expect(event.privacy['rawImagesStored'], isFalse);
+      expect(event.rawImagesStored, isFalse);
+    });
+
     test('does not include raw image data', () {
       final builder = AuditEventBuilder(
         sessionId: 's1',

@@ -1,3 +1,11 @@
+## 1.2.0
+
+- Added `MultiFaceSecurityGate` with `SecurityViolationCode.multiFaceDetected` fail-safe that locks `ChallengeFlowController` into a compromised state (no retries).
+- Added `FaceJitterFilter` for temporal smoothing of yaw/pitch/roll and bounding-box centers across a rolling frame window.
+- Enriched `OnboardingAuditEvent` / `AuditTrailRecorder` with performance profile, latency/FPS context, immutable privacy flags (`derivedSignalsOnly`, `rawImagesStored`), and optional `securityViolation`.
+- Wired multi-face security + jitter filtering into `LivenessActionSession` (opt-out via constructor flags).
+- Session now also advances geometry-based challenge steps via `processFrame`.
+
 ## 1.1.0
 
 - Added dynamic target / follow-the-dot challenge support.

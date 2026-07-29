@@ -7,6 +7,7 @@ import '../models/face_position_status.dart';
 import '../models/liveness_diagnostics.dart';
 import '../performance/performance_profile.dart';
 import '../quality/face_quality_gate.dart';
+import '../smoothing/face_jitter_filter.dart';
 import 'blink_detector.dart';
 import 'face_position_analyzer.dart';
 import 'head_movement_detector.dart';
@@ -14,6 +15,9 @@ import 'head_movement_detector.dart';
 /// Orchestrates detectors and quality checks into a [FaceActionResult].
 class FaceActionAnalyzer {
   /// Creates an analyzer with optional detector and gate dependencies.
+  ///
+  /// When [jitterFilter] is provided, geometry metrics are temporally smoothed
+  /// before position / movement / quality evaluation.
   FaceActionAnalyzer({
     FaceActionConfig config = const FaceActionConfig(),
     BlinkDetector? blinkDetector,
@@ -21,6 +25,7 @@ class FaceActionAnalyzer {
     FacePositionAnalyzer? positionAnalyzer,
     FaceQualityGate? qualityGate,
     GuidanceMessageBuilder? guidanceBuilder,
+    FaceJitterFilter? jitterFilter,
   })  : _config = config,
         _blinkDetector = blinkDetector ?? BlinkDetector(config: config),
         _headMovementDetector =
@@ -28,7 +33,8 @@ class FaceActionAnalyzer {
         _positionAnalyzer =
             positionAnalyzer ?? FacePositionAnalyzer(config: config),
         _qualityGate = qualityGate ?? FaceQualityGate(),
-        _guidanceBuilder = guidanceBuilder ?? const GuidanceMessageBuilder();
+        _guidanceBuilder = guidanceBuilder ?? const GuidanceMessageBuilder(),
+        _jitterFilter = jitterFilter;
 
   final FaceActionConfig _config;
   final BlinkDetector _blinkDetector;
@@ -36,6 +42,7 @@ class FaceActionAnalyzer {
   final FacePositionAnalyzer _positionAnalyzer;
   final FaceQualityGate _qualityGate;
   final GuidanceMessageBuilder _guidanceBuilder;
+  final FaceJitterFilter? _jitterFilter;
 
   int _holdStillFrames = 0;
   LivenessDiagnostics _diagnostics = const LivenessDiagnostics(
@@ -50,28 +57,29 @@ class FaceActionAnalyzer {
 
   /// Analyzes a normalized [frame] into derived interaction signals.
   FaceActionResult analyze(FaceActionFrame frame) {
-    final position = _positionAnalyzer.analyze(frame);
-    final quality = _qualityGate.evaluate(frame);
+    final input = _jitterFilter?.filter(frame) ?? frame;
+    final position = _positionAnalyzer.analyze(input);
+    final quality = _qualityGate.evaluate(input);
     final movement = _headMovementDetector.detect(
-      yaw: frame.headEulerAngleY,
-      roll: frame.headEulerAngleZ,
+      yaw: input.headEulerAngleY,
+      roll: input.headEulerAngleZ,
     );
     final eyesOpen =
-        (frame.leftEyeOpenProbability ?? 0) >= _config.eyeOpenThreshold &&
-            (frame.rightEyeOpenProbability ?? 0) >= _config.eyeOpenThreshold;
+        (input.leftEyeOpenProbability ?? 0) >= _config.eyeOpenThreshold &&
+            (input.rightEyeOpenProbability ?? 0) >= _config.eyeOpenThreshold;
     final blinkDetected = _blinkDetector.update(
-      leftEyeOpenProbability: frame.leftEyeOpenProbability,
-      rightEyeOpenProbability: frame.rightEyeOpenProbability,
-      timestamp: frame.timestamp,
+      leftEyeOpenProbability: input.leftEyeOpenProbability,
+      rightEyeOpenProbability: input.rightEyeOpenProbability,
+      timestamp: input.timestamp,
     );
 
     final stillNow = !movement.left && !movement.right && !movement.tilted;
     _holdStillFrames = stillNow ? _holdStillFrames + 1 : 0;
 
     var signal = FaceActionSignal(
-      faceDetected: frame.faceDetected,
-      multipleFacesDetected: frame.faceCount > 1,
-      singleFaceDetected: frame.faceCount == 1,
+      faceDetected: input.faceDetected,
+      multipleFacesDetected: input.faceCount > 1,
+      singleFaceDetected: input.faceCount == 1,
       faceCentered: position == FacePositionStatus.centered,
       faceTooClose: position == FacePositionStatus.tooClose,
       faceTooFar: position == FacePositionStatus.tooFar,
@@ -82,7 +90,7 @@ class FaceActionAnalyzer {
       headTurnedRight: movement.right,
       headTilted: movement.tilted,
       holdStill: _holdStillFrames >= _config.requiredStableFrames,
-      smileDetected: (frame.smilingProbability ?? 0) >= _config.smileThreshold,
+      smileDetected: (input.smilingProbability ?? 0) >= _config.smileThreshold,
       qualityStatus: quality.status,
       positionStatus: position,
       warnings: quality.warnings.map((w) => w.name).toList(growable: false),
@@ -115,7 +123,7 @@ class FaceActionAnalyzer {
     );
 
     return FaceActionResult(
-      frame: frame,
+      frame: input,
       signal: signal,
       quality: quality,
       diagnostics: _diagnostics,
@@ -123,10 +131,11 @@ class FaceActionAnalyzer {
     );
   }
 
-  /// Resets blink / hold-still / quality stability state.
+  /// Resets blink / hold-still / quality / jitter state.
   void reset() {
     _holdStillFrames = 0;
     _blinkDetector.reset();
     _qualityGate.reset();
+    _jitterFilter?.reset();
   }
 }

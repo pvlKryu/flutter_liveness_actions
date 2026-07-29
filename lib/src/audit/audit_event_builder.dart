@@ -1,9 +1,11 @@
+import '../config/performance_config.dart';
 import '../models/challenge_event.dart';
 import '../models/challenge_state.dart';
 import '../models/challenge_step.dart';
 import '../models/liveness_diagnostics.dart';
 import '../models/onboarding_audit_event.dart';
 import '../privacy/privacy_guard.dart';
+import '../security/security_violation_code.dart';
 import 'audit_trail_recorder.dart';
 
 /// Builds privacy-safe onboarding audit events with optional trail support.
@@ -38,9 +40,13 @@ class AuditEventBuilder {
   final PrivacyGuard _privacyGuard;
   final AuditTrailRecorder _trailRecorder;
   final DateTime _startedAt;
+  SecurityViolationCode? _securityViolation;
 
   /// Underlying audit trail recorder.
   AuditTrailRecorder get trailRecorder => _trailRecorder;
+
+  /// Last recorded security violation, if any.
+  SecurityViolationCode? get securityViolation => _securityViolation;
 
   /// Records that the camera is ready for local analysis.
   void recordCameraReady() {
@@ -50,6 +56,40 @@ class AuditEventBuilder {
   /// Records that the quality gate accepted a frame.
   void recordQualityGatePassed() {
     _trailRecorder.record(AuditTrailEventType.qualityGatePassed);
+  }
+
+  /// Records a security fail-safe (e.g. multi-face) in the audit trail.
+  void recordSecurityViolation(
+    SecurityViolationCode code, {
+    int? faceCount,
+    DateTime? timestamp,
+  }) {
+    _securityViolation = code;
+    _trailRecorder.recordSecurityViolation(
+      code: code.name,
+      faceCount: faceCount,
+      timestamp: timestamp,
+    );
+  }
+
+  /// Records active performance profile and measured latency / FPS.
+  void recordPerformanceContext({
+    required PerformanceConfig performanceConfig,
+    required LivenessDiagnostics diagnostics,
+    DateTime? timestamp,
+  }) {
+    final effectiveFps = diagnostics.averageProcessingMs > 0
+        ? 1000.0 / diagnostics.averageProcessingMs
+        : null;
+    _trailRecorder.recordPerformanceContext(
+      profile: performanceConfig.profile.name,
+      targetProcessingFps: performanceConfig.targetProcessingFps,
+      averageProcessingMs: diagnostics.averageProcessingMs,
+      effectiveProcessingFps: effectiveFps,
+      processedFrames: diagnostics.processedFrames,
+      droppedFrames: diagnostics.droppedFrames,
+      timestamp: timestamp,
+    );
   }
 
   /// Records a [FaceChallengeEvent] in the audit trail.
@@ -88,6 +128,15 @@ class AuditEventBuilder {
             'failureReason': event.failureReason.name,
           },
         );
+      case FaceChallengeEventType.challengeCompromised:
+        final code =
+            event.securityViolation ?? SecurityViolationCode.multiFaceDetected;
+        _securityViolation = code;
+        _trailRecorder.recordSecurityViolation(
+          code: code.name,
+          timestamp: event.timestamp,
+          message: event.message ?? code.name,
+        );
     }
   }
 
@@ -100,14 +149,32 @@ class AuditEventBuilder {
   }
 
   /// Builds a privacy-safe [OnboardingAuditEvent] from challenge state.
+  ///
+  /// [performanceConfig] enriches the `performance` JSON block with the active
+  /// profile. Privacy flags are immutable package guarantees:
+  /// `derivedSignalsOnly: true`, `rawImagesStored: false`.
   OnboardingAuditEvent build({
     required FaceChallengeState challengeState,
     required bool faceDetected,
     required bool multipleFacesDetected,
     required LivenessDiagnostics diagnostics,
     DateTime? completedAt,
+    PerformanceConfig? performanceConfig,
   }) {
     recordDiagnosticsSummary(diagnostics);
+    if (performanceConfig != null) {
+      recordPerformanceContext(
+        performanceConfig: performanceConfig,
+        diagnostics: diagnostics,
+      );
+    }
+
+    final violation = _securityViolation ?? challengeState.securityViolation;
+    final performance = _buildPerformanceMap(
+      performanceConfig: performanceConfig,
+      diagnostics: diagnostics,
+    );
+
     return OnboardingAuditEvent(
       sessionId: sessionId,
       sequenceId: sequenceId,
@@ -125,7 +192,28 @@ class AuditEventBuilder {
       demoOnly: true,
       diagnostics: diagnostics.toJson(),
       privacy: _privacyGuard.auditPrivacyFlags(),
+      performance: performance,
+      securityViolation: violation,
     );
+  }
+
+  Map<String, Object?> _buildPerformanceMap({
+    required PerformanceConfig? performanceConfig,
+    required LivenessDiagnostics diagnostics,
+  }) {
+    final effectiveFps = diagnostics.averageProcessingMs > 0
+        ? 1000.0 / diagnostics.averageProcessingMs
+        : null;
+    return <String, Object?>{
+      'profile': performanceConfig?.profile.name ??
+          diagnostics.recommendedPerformanceProfile.name,
+      'targetProcessingFps': performanceConfig?.targetProcessingFps ??
+          diagnostics.targetProcessingFps,
+      'averageProcessingMs': diagnostics.averageProcessingMs,
+      'effectiveProcessingFps': effectiveFps,
+      'processedFrames': diagnostics.processedFrames,
+      'droppedFrames': diagnostics.droppedFrames,
+    };
   }
 
   Map<String, Object?> _stepToMap(FaceChallengeStep step) {

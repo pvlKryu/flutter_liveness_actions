@@ -8,10 +8,19 @@ class PrivacyGuard {
   /// config.
   final PrivacyConfig config;
 
-  /// Builds privacy flags for inclusion in audit events.
-  Map<String, Object?> auditPrivacyFlags() => <String, Object?>{
-        'rawImagesStored': config.allowRawImageStorage,
-        'rawImagesUploaded': config.allowRawImageUpload,
-        'derivedSignalsOnly': config.derivedSignalsOnly,
-      };
+  /// Builds immutable privacy flags for inclusion in audit events.
+  ///
+  /// Package guarantee embedded in every audit JSON (when enabled):
+  /// `{ "derivedSignalsOnly": true, "rawImagesStored": false }`.
+  /// Host [PrivacyConfig] cannot weaken these flags in audit output.
+  Map<String, Object?> auditPrivacyFlags() {
+    if (!config.includePrivacyFlagsInAuditEvent) {
+      return const <String, Object?>{};
+    }
+    return const <String, Object?>{
+      'derivedSignalsOnly': true,
+      'rawImagesStored': false,
+      'rawImagesUploaded': false,
+    };
+  }
 }

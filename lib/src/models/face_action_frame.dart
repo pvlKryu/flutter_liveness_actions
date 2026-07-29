@@ -73,6 +73,45 @@ class FaceActionFrame extends Equatable {
   /// Non-PII metadata (for example tracking id).
   final Map<String, Object?> metadata;
 
+  /// Returns a copy with selectively overridden fields.
+  FaceActionFrame copyWith({
+    DateTime? timestamp,
+    bool? faceDetected,
+    int? faceCount,
+    double? leftEyeOpenProbability,
+    double? rightEyeOpenProbability,
+    double? smilingProbability,
+    double? headEulerAngleX,
+    double? headEulerAngleY,
+    double? headEulerAngleZ,
+    Rect? boundingBox,
+    Size? imageSize,
+    bool? hasContours,
+    bool? hasLandmarks,
+    double? brightnessHeuristic,
+    Map<String, Object?>? metadata,
+  }) {
+    return FaceActionFrame(
+      timestamp: timestamp ?? this.timestamp,
+      faceDetected: faceDetected ?? this.faceDetected,
+      faceCount: faceCount ?? this.faceCount,
+      leftEyeOpenProbability:
+          leftEyeOpenProbability ?? this.leftEyeOpenProbability,
+      rightEyeOpenProbability:
+          rightEyeOpenProbability ?? this.rightEyeOpenProbability,
+      smilingProbability: smilingProbability ?? this.smilingProbability,
+      headEulerAngleX: headEulerAngleX ?? this.headEulerAngleX,
+      headEulerAngleY: headEulerAngleY ?? this.headEulerAngleY,
+      headEulerAngleZ: headEulerAngleZ ?? this.headEulerAngleZ,
+      boundingBox: boundingBox ?? this.boundingBox,
+      imageSize: imageSize ?? this.imageSize,
+      hasContours: hasContours ?? this.hasContours,
+      hasLandmarks: hasLandmarks ?? this.hasLandmarks,
+      brightnessHeuristic: brightnessHeuristic ?? this.brightnessHeuristic,
+      metadata: metadata ?? this.metadata,
+    );
+  }
+
   @override
   List<Object?> get props => [
         timestamp,

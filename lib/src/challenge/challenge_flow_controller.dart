@@ -9,6 +9,7 @@ import '../models/challenge_step.dart';
 import '../models/face_action_frame.dart';
 import '../models/face_action_signal.dart';
 import '../models/face_action_type.dart';
+import '../security/security_violation_code.dart';
 import '../target/target_path_evaluator.dart';
 import '../target/target_zone.dart';
 import 'challenge_sequence_factory.dart';
@@ -49,6 +50,9 @@ class ChallengeFlowController {
   /// Active target-path evaluator when the current step uses target zones.
   TargetPathEvaluator? get targetEvaluator => _targetEvaluator;
 
+  /// Whether the challenge is locked by a security fail-safe.
+  bool get isCompromised => _state.compromised;
+
   /// Rebuilds a new sequence and emits [FaceChallengeEventType.challengeStarted].
   void reset() {
     _sequence = _sequenceFactory.create(_config);
@@ -60,12 +64,55 @@ class ChallengeFlowController {
     ));
   }
 
+  /// Instantly locks the challenge into a compromised fail-safe state.
+  ///
+  /// Compromised challenges do not auto-retry. Call [reset] to start fresh.
+  void lockForSecurityViolation(
+    SecurityViolationCode code, {
+    DateTime? now,
+  }) {
+    if (_state.compromised) {
+      return;
+    }
+    final timestamp = now ?? DateTime.now();
+    final current = _state.currentStep;
+    if (current != null &&
+        current.status != ChallengeStepStatus.passed &&
+        current.status != ChallengeStepStatus.failed) {
+      _replaceCurrent(current.copyWith(
+        status: ChallengeStepStatus.failed,
+        failureReason: ChallengeFailureReason.securityCompromised,
+        completedAt: timestamp,
+        startedAt: current.startedAt ?? timestamp,
+      ));
+    }
+    _state = FaceChallengeState(
+      steps: _state.steps,
+      currentStepIndex: _state.currentStepIndex,
+      completed: false,
+      failed: true,
+      compromised: true,
+      progress: _state.progress,
+      failureReason: ChallengeFailureReason.securityCompromised,
+      securityViolation: code,
+    );
+    _targetEvaluator = null;
+    _events.add(FaceChallengeEvent(
+      type: FaceChallengeEventType.challengeCompromised,
+      timestamp: timestamp,
+      stepId: current?.id,
+      failureReason: ChallengeFailureReason.securityCompromised,
+      securityViolation: code,
+      message: code.name,
+    ));
+  }
+
   /// Advances the challenge using a derived [signal].
   ///
   /// For [FaceActionType.followTargetPath] steps, prefer [processFrame].
   void processSignal(FaceActionSignal signal, {DateTime? now}) {
     final timestamp = now ?? DateTime.now();
-    if (_state.completed || _state.failed || _state.currentStep == null) {
+    if (_state.isTerminal || _state.currentStep == null) {
       return;
     }
 
@@ -88,7 +135,7 @@ class ChallengeFlowController {
   /// Advances geometry-based steps (target path / move-to-zone) using [frame].
   void processFrame(FaceActionFrame frame, {DateTime? now}) {
     final timestamp = now ?? frame.timestamp;
-    if (_state.completed || _state.failed || _state.currentStep == null) {
+    if (_state.isTerminal || _state.currentStep == null) {
       return;
     }
 
@@ -128,6 +175,9 @@ class ChallengeFlowController {
 
   /// Retries the current step and increments its retry counter.
   void retryCurrentStep({DateTime? now}) {
+    if (_state.compromised) {
+      return;
+    }
     final current = _state.currentStep;
     if (current == null) {
       return;
@@ -198,6 +248,7 @@ class ChallengeFlowController {
       currentStepIndex: done ? _state.currentStepIndex : nextIndex,
       completed: done,
       failed: false,
+      compromised: false,
       progress: _state.steps
               .where((s) => s.status == ChallengeStepStatus.passed)
               .length /
@@ -227,6 +278,7 @@ class ChallengeFlowController {
       currentStepIndex: _state.currentStepIndex,
       completed: false,
       failed: true,
+      compromised: false,
       progress: _state.progress,
       failureReason: reason,
     );
@@ -247,10 +299,12 @@ class ChallengeFlowController {
       currentStepIndex: _state.currentStepIndex,
       completed: _state.completed,
       failed: _state.failed,
+      compromised: _state.compromised,
       progress:
           updated.where((s) => s.status == ChallengeStepStatus.passed).length /
               updated.length,
       failureReason: _state.failureReason,
+      securityViolation: _state.securityViolation,
     );
   }
 

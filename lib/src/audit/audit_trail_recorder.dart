@@ -26,6 +26,12 @@ enum AuditTrailEventType {
 
   /// Diagnostics summary captured.
   diagnosticsSummary,
+
+  /// Security fail-safe fired (e.g. multi-face).
+  securityViolation,
+
+  /// Performance profile / FPS context snapshot.
+  performanceContext,
 }
 
 /// Single audit-friendly timeline entry without personal data.
@@ -97,6 +103,48 @@ class AuditTrailRecorder {
         message: message,
         metadata: metadata,
       ),
+    );
+  }
+
+  /// Records active performance profile and measured latency / FPS.
+  void recordPerformanceContext({
+    required String profile,
+    required int targetProcessingFps,
+    required double averageProcessingMs,
+    double? effectiveProcessingFps,
+    int? processedFrames,
+    int? droppedFrames,
+    DateTime? timestamp,
+  }) {
+    record(
+      AuditTrailEventType.performanceContext,
+      timestamp: timestamp,
+      metadata: <String, Object?>{
+        'profile': profile,
+        'targetProcessingFps': targetProcessingFps,
+        'averageProcessingMs': averageProcessingMs,
+        'effectiveProcessingFps': effectiveProcessingFps,
+        if (processedFrames != null) 'processedFrames': processedFrames,
+        if (droppedFrames != null) 'droppedFrames': droppedFrames,
+      },
+    );
+  }
+
+  /// Records a security fail-safe without PII.
+  void recordSecurityViolation({
+    required String code,
+    int? faceCount,
+    DateTime? timestamp,
+    String? message,
+  }) {
+    record(
+      AuditTrailEventType.securityViolation,
+      timestamp: timestamp,
+      message: message ?? code,
+      metadata: <String, Object?>{
+        'securityViolation': code,
+        if (faceCount != null) 'faceCount': faceCount,
+      },
     );
   }
 

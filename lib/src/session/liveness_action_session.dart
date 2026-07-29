@@ -13,12 +13,15 @@ import '../models/challenge_state.dart';
 import '../models/challenge_step.dart';
 import '../models/face_action_frame.dart';
 import '../models/face_action_result.dart';
+import '../models/face_action_type.dart';
 import '../models/guidance_message.dart';
 import '../models/liveness_diagnostics.dart';
 import '../models/onboarding_audit_event.dart';
 import '../performance/adaptive_performance_controller.dart';
 import '../performance/frame_processing_controller.dart';
 import '../quality/face_quality_gate.dart';
+import '../security/multi_face_security_gate.dart';
+import '../smoothing/face_jitter_filter.dart';
 import '../version.dart';
 import 'liveness_action_snapshot.dart';
 
@@ -40,14 +43,25 @@ import 'liveness_action_snapshot.dart';
 /// ```
 class LivenessActionSession {
   /// Creates a session with optional configs and challenge enablement.
+  ///
+  /// When [enableMultiFaceSecurityGate] is true (default) and challenges are
+  /// enabled, `faceCount > 1` immediately locks the challenge as compromised.
+  ///
+  /// When [enableJitterFilter] is true (default), geometry is smoothed over a
+  /// rolling window before analysis (see [FaceJitterFilter]).
   LivenessActionSession({
     FaceActionConfig faceConfig = const FaceActionConfig(),
     FaceChallengeConfig challengeConfig = const FaceChallengeConfig(),
     PerformanceConfig? performanceConfig,
     this.sessionId = 'session',
     this.enableChallenge = false,
+    this.enableMultiFaceSecurityGate = true,
+    this.enableJitterFilter = true,
+    int jitterWindowSize = 5,
     String? packageVersionOverride,
     AuditTrailRecorder? trailRecorder,
+    MultiFaceSecurityGate? multiFaceSecurityGate,
+    FaceJitterFilter? jitterFilter,
   })  : packageVersionValue = packageVersionOverride ?? packageVersion,
         _adaptive = AdaptivePerformanceController(
           initialConfig: performanceConfig ?? PerformanceConfig.balanced(),
@@ -55,7 +69,15 @@ class LivenessActionSession {
         _lifecycle = LivenessSessionLifecycle(),
         _guidanceBuilder = const GuidanceMessageBuilder(),
         _challengeConfig = challengeConfig,
-        _faceConfig = faceConfig {
+        _faceConfig = faceConfig,
+        _multiFaceGate = multiFaceSecurityGate ??
+            (enableMultiFaceSecurityGate
+                ? const MultiFaceSecurityGate()
+                : null),
+        _jitterFilter = jitterFilter ??
+            (enableJitterFilter
+                ? FaceJitterFilter(windowSize: jitterWindowSize)
+                : null) {
     _frameController = FrameProcessingController(config: _adaptive.config);
     _qualityGate = FaceQualityGate(
       enableExtendedQualityChecks: _adaptive.config.enableExtendedQualityChecks,
@@ -64,6 +86,7 @@ class LivenessActionSession {
       config: _faceConfig,
       qualityGate: _qualityGate,
       guidanceBuilder: _guidanceBuilder,
+      jitterFilter: _jitterFilter,
     );
     _startChallengeAndAudit(trailRecorder);
   }
@@ -74,6 +97,12 @@ class LivenessActionSession {
   /// Whether challenge evaluation runs on each accepted frame.
   final bool enableChallenge;
 
+  /// Whether multi-face detections lock the challenge as compromised.
+  final bool enableMultiFaceSecurityGate;
+
+  /// Whether temporal geometry smoothing is applied before analysis.
+  final bool enableJitterFilter;
+
   /// Package version string written into audit events.
   final String packageVersionValue;
 
@@ -82,6 +111,8 @@ class LivenessActionSession {
   final GuidanceMessageBuilder _guidanceBuilder;
   final FaceChallengeConfig _challengeConfig;
   final FaceActionConfig _faceConfig;
+  final MultiFaceSecurityGate? _multiFaceGate;
+  final FaceJitterFilter? _jitterFilter;
 
   late FrameProcessingController _frameController;
   late FaceQualityGate _qualityGate;
@@ -105,6 +136,12 @@ class LivenessActionSession {
 
   /// Audit builder for the active session.
   AuditEventBuilder get auditBuilder => _auditBuilder;
+
+  /// Active multi-face security gate, if enabled.
+  MultiFaceSecurityGate? get multiFaceSecurityGate => _multiFaceGate;
+
+  /// Active jitter filter, if enabled.
+  FaceJitterFilter? get jitterFilter => _jitterFilter;
 
   /// Frame-processing diagnostics.
   LivenessDiagnostics get diagnostics => _frameController.diagnostics();
@@ -160,9 +197,24 @@ class LivenessActionSession {
     final result = _analyzer.analyze(frame);
     _latestResult = result;
 
-    if (_challenge != null && result.quality.isAcceptable) {
+    if (_challenge != null && _multiFaceGate != null) {
+      _multiFaceGate.applyFrame(
+        frame,
+        controller: _challenge,
+        auditBuilder: _auditBuilder,
+      );
+    }
+
+    if (_challenge != null &&
+        !_challenge!.isCompromised &&
+        result.quality.isAcceptable) {
       _auditBuilder.recordQualityGatePassed();
-      _challenge!.processSignal(result.signal, now: frame.timestamp);
+      final current = _challenge!.state.currentStep;
+      if (current != null && _usesFrameEvaluation(current)) {
+        _challenge!.processFrame(result.frame, now: frame.timestamp);
+      } else {
+        _challenge!.processSignal(result.signal, now: frame.timestamp);
+      }
     }
 
     final step = _challenge?.state.currentStep;
@@ -228,6 +280,7 @@ class LivenessActionSession {
     _ensureNotDisposed();
     _analyzer.reset();
     _frameController.reset();
+    _jitterFilter?.reset();
     _latestResult = null;
     _guidance = const <GuidanceMessage>[];
     _challengeSubscription?.cancel();
@@ -252,6 +305,7 @@ class LivenessActionSession {
       multipleFacesDetected: signal?.multipleFacesDetected ?? false,
       diagnostics: diagnostics,
       completedAt: completedAt,
+      performanceConfig: performanceConfig,
     );
   }
 
@@ -300,7 +354,30 @@ class LivenessActionSession {
       config: _faceConfig,
       qualityGate: _qualityGate,
       guidanceBuilder: _guidanceBuilder,
+      jitterFilter: _jitterFilter,
     );
+  }
+
+  bool _usesFrameEvaluation(FaceChallengeStep step) {
+    switch (step.type) {
+      case FaceActionType.followTarget:
+      case FaceActionType.followTargetPath:
+      case FaceActionType.moveToTopLeft:
+      case FaceActionType.moveToTopRight:
+      case FaceActionType.moveToBottomLeft:
+      case FaceActionType.moveToBottomRight:
+        return true;
+      case FaceActionType.moveToCenter:
+        // Prefer geometry when explicit target zones are present.
+        return step.targetZones != null && step.targetZones!.isNotEmpty;
+      case FaceActionType.centerFace:
+      case FaceActionType.blinkOnce:
+      case FaceActionType.turnHeadLeft:
+      case FaceActionType.turnHeadRight:
+      case FaceActionType.holdStill:
+      case FaceActionType.smile:
+        return false;
+    }
   }
 
   void _ensureNotDisposed() {

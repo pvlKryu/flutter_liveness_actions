@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../security/security_violation_code.dart';
+
 /// Privacy-safe onboarding audit event for demo flows.
 class OnboardingAuditEvent extends Equatable {
   /// Creates an onboarding audit event.
@@ -20,6 +22,8 @@ class OnboardingAuditEvent extends Equatable {
     this.demoOnly = true,
     this.diagnostics = const <String, Object?>{},
     this.privacy = const <String, Object?>{},
+    this.performance = const <String, Object?>{},
+    this.securityViolation,
   });
 
   /// Demo session identifier.
@@ -67,8 +71,14 @@ class OnboardingAuditEvent extends Equatable {
   /// Diagnostics snapshot.
   final Map<String, Object?> diagnostics;
 
-  /// Privacy flags.
+  /// Immutable privacy flags (`derivedSignalsOnly`, `rawImagesStored`).
   final Map<String, Object?> privacy;
+
+  /// Active performance profile and measured latency / FPS context.
+  final Map<String, Object?> performance;
+
+  /// Security violation code name when a fail-safe locked the session.
+  final SecurityViolationCode? securityViolation;
 
   /// Serializes the audit event to JSON-compatible maps.
   Map<String, Object?> toJson() => <String, Object?>{
@@ -88,6 +98,8 @@ class OnboardingAuditEvent extends Equatable {
         'demoOnly': demoOnly,
         'diagnostics': diagnostics,
         'privacy': privacy,
+        'performance': performance,
+        'securityViolation': securityViolation?.name,
       };
 
   @override
@@ -108,5 +120,7 @@ class OnboardingAuditEvent extends Equatable {
         demoOnly,
         diagnostics,
         privacy,
+        performance,
+        securityViolation,
       ];
 }

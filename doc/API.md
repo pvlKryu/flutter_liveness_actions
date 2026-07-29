@@ -20,6 +20,8 @@ Safe for most host apps:
 - **Config:** `FaceActionConfig`, `FaceChallengeConfig`, `PerformanceConfig`, `PrivacyConfig`
 - **Adapters:** `MlKitFaceAdapter`
 - **Orchestration:** `FaceActionAnalyzer`, `FaceQualityGate`, `ChallengeFlowController`, `ChallengeSequenceFactory`, `DefaultChallenges`
+- **Security:** `MultiFaceSecurityGate`, `SecurityViolationCode`
+- **Smoothing:** `FaceJitterFilter`, `SignalSmoother`
 - **Target path:** `TargetZone`, `FaceTargetPosition`, `TargetZoneResult`, `TargetPathChallenge`, `TargetPathEvaluator`, `TargetPathFactory`, `DefaultTargetPaths`
 - **Performance:** `FrameProcessingController`, `AdaptivePerformanceController`, `DeviceCapabilityProfile`, `PerformanceProfile`
 - **Guidance:** `GuidanceMessageBuilder`, `GuidanceCatalog`, `GuidanceCode`, `GuidanceMessage`, `GuidanceSeverity`
@@ -32,9 +34,28 @@ Safe for most host apps:
 Exported for customization and testing; prefer the session / analyzer facades in app code:
 
 - `BlinkDetector`, `HeadMovementDetector`, `FacePositionAnalyzer`
-- `SignalSmoother`
+- `FaceJitterFilter`, `SignalSmoother`
 - `ChallengeStepEvaluator`
 - `FaceQualityWarning`, `PrivacyGuard`
+- `MultiFaceSecurityGate` (also wired by default in `LivenessActionSession`)
+
+## Audit JSON guarantees (1.2+)
+
+`OnboardingAuditEvent.toJson()` always includes:
+
+```json
+{
+  "privacy": { "derivedSignalsOnly": true, "rawImagesStored": false },
+  "performance": {
+    "profile": "balanced",
+    "targetProcessingFps": 12,
+    "averageProcessingMs": 0,
+    "effectiveProcessingFps": null
+  }
+}
+```
+
+Optional `securityViolation` is set when `MultiFaceSecurityGate` locks the challenge.
 
 ## Models (value types)
 

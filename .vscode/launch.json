@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Example app (debug)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/example",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "Example app (profile)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/example",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Example app (release)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/example",
+      "program": "lib/main.dart",
+      "flutterMode": "release"
+    },
+    {
+      "name": "Example app (attach)",
+      "type": "dart",
+      "request": "attach"
+    }
+  ]
+}

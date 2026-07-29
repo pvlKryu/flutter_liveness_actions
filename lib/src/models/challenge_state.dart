@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../security/security_violation_code.dart';
 import 'challenge_failure_reason.dart';
 import 'challenge_step.dart';
 
@@ -13,6 +14,8 @@ class FaceChallengeState extends Equatable {
     required this.failed,
     required this.progress,
     this.failureReason = ChallengeFailureReason.none,
+    this.compromised = false,
+    this.securityViolation,
   });
 
   /// steps.
@@ -33,6 +36,18 @@ class FaceChallengeState extends Equatable {
   /// failure reason.
   final ChallengeFailureReason failureReason;
 
+  /// Whether the challenge is locked by a security fail-safe.
+  ///
+  /// Compromised sessions cannot advance via [ChallengeFlowController]
+  /// until [ChallengeFlowController.reset] is called.
+  final bool compromised;
+
+  /// Security violation that caused [compromised], if any.
+  final SecurityViolationCode? securityViolation;
+
+  /// Whether the challenge is terminal (completed, failed, or compromised).
+  bool get isTerminal => completed || failed || compromised;
+
   /// current step.
   FaceChallengeStep? get currentStep =>
       currentStepIndex >= 0 && currentStepIndex < steps.length
@@ -51,6 +66,14 @@ class FaceChallengeState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [steps, currentStepIndex, completed, failed, progress, failureReason];
+  List<Object?> get props => [
+        steps,
+        currentStepIndex,
+        completed,
+        failed,
+        progress,
+        failureReason,
+        compromised,
+        securityViolation,
+      ];
 }
